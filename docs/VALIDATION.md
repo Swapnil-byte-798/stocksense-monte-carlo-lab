@@ -1,6 +1,6 @@
 # Validation record
 
-Checked in the development environment on 16 October 2026. Python 3.12.14, NumPy 2.3.5, SciPy 1.17.0. This record states what was executed, not merely what is configured.
+Checked locally and in GitHub Actions on 16 October 2026. Local environment: Python 3.12.14, NumPy 2.3.5, SciPy 1.17.0. The published implementation passed all jobs in [CI run 38931946346](https://github.com/Swapnil-byte-798/stocksense-monte-carlo-lab/actions/runs/38931946346), source commit `7f25b25741b394d77fb2f72207b86630e4e8b9d4`. This record states what was executed, not merely what is configured.
 
 ## Executed successfully
 
@@ -11,6 +11,10 @@ Checked in the development environment on 16 October 2026. Python 3.12.14, NumPy
 - **Package:** editable wheel built and installed using already available pinned numerical dependencies.
 - **JavaScript:** Node syntax validation of dashboard code.
 - **PDF:** study guide rendered and inspected for readable typography, tables, analogy callouts, and page layout.
+- **Python compatibility in GitHub Actions:** numerical and integration tests, CLI run, and CSV calibration all passed on Python 3.11, 3.12, and 3.13.
+- **Chromium browser checks in GitHub Actions:** default rendering, scenario changes, JSON download, validation errors retaining the previous result, experiment history, learning view, 390px mobile overflow check, and disabled saved-preview controls all passed. Desktop and mobile screenshots were inspected; the verified desktop capture is included in the README.
+
+The first browser run exposed an incorrect test assumption: Playwright did not classify the fieldset itself as a disabled interactive control. The assertion now checks the actual Run button and demand input, including inherited fieldset disabling. Reduced-motion mode makes screenshots deterministic. Charts use their rendered container size to keep mobile labels readable.
 
 ## Numerical evidence
 
@@ -20,12 +24,10 @@ In a separate no-disruption, risk-neutral test, the analytic optimum is 1006.066
 
 These values verify implementation behavior under synthetic assumptions. They do not establish real-world impact or universal uncertainty coverage.
 
-## Not executed here
+## Remaining checks and limits
 
-- **Browser rendering and UI interaction tests:** local Chromium installation failed because the downloaded browser archive was unusable. The cloud browser could not access localhost. Desktop/mobile visual verification is therefore pending. `scripts/test-browser.cjs` and a GitHub Actions browser job cover the planned check, including exports, history, error states, mobile overflow, and saved-preview behavior.
 - **Docker image build:** Docker is not available in this environment. The Dockerfile is supplied but not claimed as tested.
-- **GitHub Actions:** workflows are configured; a passing remote run must be confirmed after publication.
-- **Python 3.11 and 3.13:** configured in the CI matrix; only Python 3.12 was executed locally.
+- **Browser engines:** Chromium was checked; Firefox, WebKit, and real mobile devices were not checked.
 - **Real-data validation, service-level constraint guarantees, and tail confidence intervals:** outside v1 scope.
 
 ## Repeat the checks

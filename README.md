@@ -7,11 +7,13 @@
 
 Python · NumPy · SciPy · Monte Carlo · SQL · Statistical validation
 
+![Numerical and browser checks](https://github.com/Swapnil-byte-798/stocksense-monte-carlo-lab/actions/workflows/ci.yml/badge.svg)
+
 [Quick start](#run-in-three-steps) · [Study guide](docs/STUDY_GUIDE.md) · [Model specification](docs/METHODOLOGY.md) · [Interview kit](docs/INTERVIEW_KIT.md)
 
 </div>
 
-![StockSense decision overview from the default synthetic experiment](docs/overview.svg)
+![StockSense interactive dashboard from a verified browser run](docs/dashboard.png)
 
 ## The business question
 
@@ -26,6 +28,8 @@ This is an original educational portfolio implementation with synthetic data. It
 Requires Python 3.11-3.13. Run these commands from the repository root.
 
 ```bash
+git clone https://github.com/Swapnil-byte-798/stocksense-monte-carlo-lab.git
+cd stocksense-monte-carlo-lab
 python -m venv .venv
 # macOS/Linux
 source .venv/bin/activate
