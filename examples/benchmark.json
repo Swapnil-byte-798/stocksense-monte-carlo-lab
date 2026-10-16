@@ -1,0 +1,87 @@
+{
+  "scenario": {
+    "demand_mean": 1000,
+    "demand_cv": 0.35,
+    "price": 50,
+    "cost": 28,
+    "salvage": 8,
+    "shortage_penalty": 5,
+    "disruption_probability": 0,
+    "disrupted_fill": 0.65,
+    "demand_supply_correlation": 0.25,
+    "risk_weight": 0,
+    "tail_probability": 0.05,
+    "order_min": 400,
+    "order_max": 1800,
+    "order_step": 25,
+    "baseline_order": 1000
+  },
+  "order": 1006.0664705547764,
+  "seed_range": [
+    100,
+    123
+  ],
+  "rows": [
+    {
+      "method": "mc",
+      "n": 256,
+      "replicates": 24,
+      "truth": 15657.60305374322,
+      "mean_estimate": 15630.257930386659,
+      "rmse": 426.8748136274359,
+      "replicate_sd": 435.1603611320744,
+      "seconds": 0.0038
+    },
+    {
+      "method": "sobol",
+      "n": 256,
+      "replicates": 24,
+      "truth": 15657.60305374322,
+      "mean_estimate": 15656.866175203968,
+      "rmse": 9.721437573331878,
+      "replicate_sd": 9.90195545960908,
+      "seconds": 0.0084
+    },
+    {
+      "method": "mc",
+      "n": 1024,
+      "replicates": 24,
+      "truth": 15657.60305374322,
+      "mean_estimate": 15669.451326443828,
+      "rmse": 178.89201049985604,
+      "replicate_sd": 182.33834728836706,
+      "seconds": 0.0049
+    },
+    {
+      "method": "sobol",
+      "n": 1024,
+      "replicates": 24,
+      "truth": 15657.60305374322,
+      "mean_estimate": 15657.350144879261,
+      "rmse": 1.7714308840013382,
+      "replicate_sd": 1.790993258548271,
+      "seconds": 0.0094
+    },
+    {
+      "method": "mc",
+      "n": 4096,
+      "replicates": 24,
+      "truth": 15657.60305374322,
+      "mean_estimate": 15668.153396383228,
+      "rmse": 76.09363223643462,
+      "replicate_sd": 76.9794854916026,
+      "seconds": 0.0093
+    },
+    {
+      "method": "sobol",
+      "n": 4096,
+      "replicates": 24,
+      "truth": 15657.60305374322,
+      "mean_estimate": 15657.670935663118,
+      "rmse": 0.42482542877223406,
+      "replicate_sd": 0.4283866882386437,
+      "seconds": 0.0152
+    }
+  ],
+  "warning": "Smooth no-disruption oracle case only. Speed and accuracy are not guaranteed for discontinuous or high-dimensional models."
+}

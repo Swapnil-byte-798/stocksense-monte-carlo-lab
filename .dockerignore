@@ -1,0 +1,7 @@
+.git
+.venv
+__pycache__
+output
+*.egg-info
+docs/*.png
+docs/*.pdf

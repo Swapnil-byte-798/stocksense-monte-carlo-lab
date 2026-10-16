@@ -1,0 +1,7 @@
+{
+  "name": "stocksense-browser-checks",
+  "private": true,
+  "description": "Optional browser validation; Node is not required to run the application",
+  "scripts": {"test:ui": "node scripts/test-browser.cjs"},
+  "devDependencies": {"playwright": "1.62.1"}
+}

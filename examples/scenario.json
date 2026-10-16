@@ -1,0 +1,17 @@
+{
+  "demand_mean": 1000,
+  "demand_cv": 0.35,
+  "price": 50,
+  "cost": 28,
+  "salvage": 8,
+  "shortage_penalty": 5,
+  "disruption_probability": 0.08,
+  "disrupted_fill": 0.65,
+  "demand_supply_correlation": 0.25,
+  "risk_weight": 0.2,
+  "tail_probability": 0.05,
+  "order_min": 400,
+  "order_max": 1800,
+  "order_step": 25,
+  "baseline_order": 1000
+}

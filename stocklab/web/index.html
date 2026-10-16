@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="StockSense: a reproducible Monte Carlo inventory decision lab by Swapnil Dwivedi.">
+  <title>StockSense · Monte Carlo Decision Lab</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <a class="brand" href="#overview"><span class="brand-icon">S<span>↗</span></span> StockSense<span class="brand-dot">.</span></a>
+    <div class="rail-label">DECISION WORKSPACE</div>
+    <nav aria-label="Main navigation">
+      <a href="#overview" class="active" data-view="overview"><span>◈</span> Decision overview</a>
+      <a href="#learn" data-view="learn"><span>◎</span> Under the hood</a>
+      <a href="#history" data-view="history"><span>≡</span> Experiment log</a>
+    </nav>
+    <div class="rail-card"><span class="mini-orbit">✳</span><h3>Uncertainty, made useful.</h3><p>Explore thousands of possible futures before choosing your next move.</p><a href="https://github.com/Swapnil-byte-798" target="_blank" rel="noreferrer">Built by Swapnil Dwivedi ↗</a></div>
+    <div class="rail-foot"><span class="status-dot"></span> Monte Carlo Decision Lab<br><small>v1.0 · Python + NumPy + SciPy</small></div>
+  </aside>
+  <main>
+    <header class="topbar"><span>Workspace <b>/</b> Inventory planning</span><div><span class="pill" id="mode">Connecting…</span><span class="avatar" aria-label="Swapnil Dwivedi">SD</span></div></header>
+    <section id="overview" class="view">
+      <div class="page-heading"><div><div class="eyebrow">SIMULATE. COMPARE. DECIDE.</div><h1>A clearer view of what’s next.</h1><p>Balance opportunity and downside before committing to inventory.</p></div><button class="button secondary" id="export-json" disabled>↓ Export run</button></div>
+      <div class="notice">Synthetic retail case study <span>•</span> One planning period <span>•</span> Illustrative currency: ₹ <span>•</span> No real-world savings claimed</div>
+      <div class="workspace-grid">
+        <section class="panel controls" aria-label="Simulation configuration">
+          <div class="panel-head"><div><span class="eyebrow">01 / CONFIGURE</span><h2>Set the scene</h2></div><span class="tiny-pill">LIVE INPUTS</span></div>
+          <form id="config-form">
+            <fieldset id="fields">
+              <label for="preset">Scenario</label><select id="preset"><option value="balanced">Balanced retail</option><option value="volatile">Demand surge</option><option value="fragile">Fragile supply chain</option></select>
+              <div class="input-section">DEMAND & SUPPLY</div>
+              <label for="demand_mean">Average period demand <span>units</span></label><input id="demand_mean" type="number" min="100" max="5000" step="50" value="1000" required>
+              <label for="demand_cv">Demand variability <output id="cv-label">35%</output></label><input id="demand_cv" type="range" min="0" max="1" step="0.05" value="0.35">
+              <label for="disruption_probability">Disruption chance <output id="disruption-label">8%</output></label><input id="disruption_probability" type="range" min="0" max="0.5" step="0.01" value="0.08">
+              <div class="two-col"><div><label for="price">Sell price · ₹</label><input id="price" type="number" min="2" max="10000" step="1" value="50" required></div><div><label for="cost">Unit cost · ₹</label><input id="cost" type="number" min="1" max="9999" step="1" value="28" required></div></div>
+              <label for="risk_weight">Downside emphasis <output id="risk-label">20%</output></label><input id="risk_weight" type="range" min="0" max="1" step="0.05" value="0.20">
+              <details><summary>Advanced assumptions</summary><div class="two-col"><div><label for="salvage">Salvage · ₹</label><input id="salvage" type="number" min="0" value="8" required></div><div><label for="shortage_penalty">Shortage · ₹</label><input id="shortage_penalty" type="number" min="0" value="5" required></div></div><label for="disrupted_fill">Delivered fraction when disrupted</label><input id="disrupted_fill" type="number" min="0" max="1" step="0.05" value="0.65" required><label for="demand_supply_correlation">Demand / disruption latent correlation</label><input id="demand_supply_correlation" type="number" min="-0.95" max="0.95" step="0.05" value="0.25" required><label for="baseline_order">Baseline order · units</label><input id="baseline_order" type="number" min="0" max="2000000" value="1000" required><p class="hint">All ordered units are prepaid; undelivered units receive no refund. Demand uses continuous units.</p></details>
+              <div class="input-section">EXPERIMENT DESIGN</div><label for="method">Sampling engine</label><select id="method"><option value="sobol">Scrambled Sobol · low discrepancy</option><option value="mc">Pseudo-random Monte Carlo</option></select>
+              <div class="two-col"><div><label for="n">Paths / replicate</label><select id="n"><option value="1024">1,024</option><option value="4096" selected>4,096</option><option value="16384">16,384</option></select></div><div><label for="seed">Random seed</label><input id="seed" type="number" min="0" max="4294967295" value="2026" required></div></div>
+              <button id="run-button" class="button primary" type="submit">Run simulation <span>↗</span></button>
+            </fieldset>
+          </form>
+          <p class="hint" id="design-note">12 independent evaluation replicates. New scenarios are used after selecting the order.</p>
+        </section>
+        <div class="results-column">
+          <div id="status" class="status-line" role="status" aria-live="polite">Preparing the decision workspace…</div>
+          <div class="metric-grid">
+            <article class="metric featured"><div>Selected inventory <span>↗</span></div><strong id="order">—</strong><small>units for the next period</small><div class="metric-foot" id="order-change">Compared with your baseline</div></article>
+            <article class="metric"><div>Expected profit</div><strong id="profit">—</strong><small id="profit-ci">95% Monte Carlo confidence interval</small><div class="metric-foot">Independent evaluation sample</div></article>
+            <article class="metric"><div>Worst 5% average profit</div><strong id="tail">—</strong><small>The lower tail of possible outcomes</small><div class="metric-foot">Higher is better · point estimate</div></article>
+            <article class="metric"><div>Demand fulfilled</div><strong id="fill">—</strong><small id="stockout">Unit-weighted service level</small><div class="metric-foot">Point estimate · not a guarantee</div></article>
+          </div>
+          <section class="panel frontier-panel"><div class="panel-head"><div><span class="eyebrow">02 / EXPLORE THE TRADE-OFF</span><h2>More stock isn’t always better.</h2></div><div class="legend"><span class="teal-dot"></span> Mean profit <span class="gold-dot"></span> Risk-adjusted score</div></div><div id="frontier" class="chart" role="img" aria-label="Selection sample: profit and risk-adjusted score by order quantity"></div><div class="chart-caption"><span>Order quantity →</span><span>Selection sample · hover points for values</span></div></section>
+          <div class="bottom-grid">
+            <section class="panel"><div class="panel-head"><div><span class="eyebrow">03 / UNDERSTAND THE DOWNSIDE</span><h2>A range of possible outcomes</h2></div></div><div id="histogram" class="chart small-chart" role="img" aria-label="Histogram of selected policy profit on evaluation worlds"></div><div class="chart-caption"><span>Profit per period · ₹</span><span>Coral bars: negative profit</span></div></section>
+            <section class="panel decision-card"><span class="eyebrow">THE DECISION BRIEF</span><h2 id="brief-title">Let the evidence guide you.</h2><p id="brief-text">Run a simulation to compare the selected policy with your current order quantity.</p><div class="brief-stat"><span>Expected difference / period</span><strong id="delta">—</strong></div><p class="hint" id="delta-ci">Paired 95% confidence interval</p><div class="mini-divider"></div><p class="hint">The selected order maximizes a blend of average profit and worst-tail profit. Changing this blend expresses a preference, not a measured probability.</p></section>
+          </div>
+          <section class="panel comparison"><div class="panel-head"><h2>Every decision needs a baseline.</h2><button class="text-button" id="export-csv" disabled>Download comparison ↓</button></div><div class="table-scroll"><table><thead><tr><th>Policy</th><th>Order units</th><th>Mean profit</th><th>Worst 5% profit</th><th>Loss chance</th><th>Fill rate</th></tr></thead><tbody id="comparison"></tbody></table></div></section>
+          <div class="audit" id="audit">Reproducibility details will appear here.</div>
+        </div>
+      </div>
+    </section>
+    <section id="learn" class="view" hidden>
+      <div class="page-heading"><div><div class="eyebrow">A MODEL YOU CAN EXPLAIN</div><h1>Look under the hood.</h1><p>Start with intuition. Then follow the mathematics.</p></div></div>
+      <div class="learn-grid">
+        <article class="panel lesson"><span class="eyebrow">01 / MONTE CARLO</span><h2>Rehearse possible futures.</h2><p>Generate many plausible demand and supply outcomes, calculate profit in each, and summarize the distribution.</p><blockquote>Imagine rehearsing a shop’s opening day thousands of times. Each rehearsal has different customers and deliveries. The pattern across rehearsals helps you prepare; none predicts the exact day.</blockquote></article>
+        <article class="panel lesson"><span class="eyebrow">02 / SELECTION & EVALUATION</span><h2>Keep the exam unseen.</h2><p>Choose a policy on one set of simulated worlds. Freeze that choice and measure its results on independent worlds.</p><blockquote>Practising the same exam can make you look better than you are. A fresh exam tests whether the choice still works. A fresh simulation only tests your choice within the assumed model.</blockquote></article>
+        <article class="panel lesson"><span class="eyebrow">03 / TAIL RISK</span><h2>The bad days matter.</h2><p>The worst 5% average profit averages the lowest 5% of profits. It is not the fifth percentile, which is a boundary rather than an average.</p><blockquote>Two bridges may carry the same average traffic. You still want to know how each behaves during the worst storms. Average profit is ordinary traffic; the lower tail describes those difficult days.</blockquote></article>
+        <article class="panel lesson"><span class="eyebrow">04 / COMMON RANDOM NUMBERS</span><h2>Compare on the same weather.</h2><p>Both policies face identical demand and delivery outcomes within each replicate. The confidence interval uses paired profit differences.</p><blockquote>Test two umbrellas in the same rainstorm. Testing one in drizzle and one in a downpour confuses the umbrella with the weather. Shared random inputs make the comparison fairer.</blockquote></article>
+        <article class="panel lesson"><span class="eyebrow">05 / SCRAMBLED SOBOL</span><h2>Cover the space evenly.</h2><p>Sobol points deliberately cover the input space. Independent scrambles support error estimates; individual points within a scramble are not independent.</p><blockquote>Inspect a field by spreading your checks across it instead of dropping every check wherever a coin lands. Scrambling moves the inspection pattern. Repeating independently reveals how variable the estimate is.</blockquote></article>
+        <article class="panel lesson"><span class="eyebrow">06 / MODEL LIMITS</span><h2>Precision is not truth.</h2><p>More paths reduce numerical error. They cannot repair incorrect demand assumptions, missing seasonal effects, or unrealistic supply contracts.</p><blockquote>A sharper camera gives a clearer picture of whatever it faces. If it faces the wrong street, extra sharpness won’t show your destination. More simulations sharpen the model you chose.</blockquote></article>
+      </div>
+      <div class="panel lesson"><h2>The accounting identity</h2><p class="formula">Profit = selling price × units sold + salvage × leftovers − unit cost × ordered units − penalty × unmet demand</p><p>Demand follows a lognormal distribution. A Gaussian copula can couple high demand with supply disruption. All values describe one period, one item, and continuous quantities. The repository study guide develops each assumption, formula, algorithm, and extension.</p></div>
+    </section>
+    <section id="history" class="view" hidden><div class="page-heading"><div><div class="eyebrow">REPRODUCIBLE BY DESIGN</div><h1>Every run leaves a trail.</h1><p>Local SQLite records retain parameters, seeds, versions, and full results.</p></div><button id="refresh-history" class="button secondary">Refresh log</button></div><div class="panel"><div class="table-scroll"><table><thead><tr><th>Run</th><th>UTC timestamp</th><th>Configuration</th><th>Method</th><th>Order</th><th>Mean profit</th></tr></thead><tbody id="history-rows"></tbody></table></div><p class="hint history-hint" id="history-note"></p></div></section>
+    <footer>StockSense / A decision science portfolio project <span>Model assumptions are part of the result.</span></footer>
+  </main>
+</div>
+</body>
+</html>
