@@ -19,6 +19,7 @@ const fs = require('node:fs/promises');
   });
   try {
     const page = await browser.newPage({
+      reducedMotion: 'reduce',
       viewport: {
         width: 1512,
         height: 1100
@@ -75,7 +76,8 @@ const fs = require('node:fs/promises');
     await page.reload();
     await page.waitForFunction(() => document.querySelector('#mode').textContent === 'Saved experiment preview');
     await page.waitForFunction(() => document.querySelector('#order').textContent === '975');
-    assert.equal(await page.locator('#fields').isDisabled(), true);
+    assert.equal(await page.locator('#run-button').isDisabled(), true);
+    assert.equal(await page.locator('#demand_mean').isDisabled(), true);
     assert.deepEqual(errors, []);
     console.log('Browser checks passed: render, scenario changes, export, errors, history, learning, mobile width, saved preview.');
   } finally {

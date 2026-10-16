@@ -41,8 +41,8 @@ const svg = (content, width = 680, height = 240) => `<svg viewBox="0 0 ${width} 
 
 function frontierChart(r) {
   const rows = r.frontier,
-    w = 680,
-    h = 240,
+    w = Math.max(280, $('frontier').clientWidth || 680),
+    h = Math.max(180, $('frontier').clientHeight || 240),
     L = 52,
     R = 17,
     T = 15,
@@ -52,18 +52,19 @@ function frontierChart(r) {
   const pad = (max - min) * .1 || 1;
   min -= pad;
   max += pad;
-  const x = (v) => L + (v - rows[0].order) / (rows.at(-1).order - rows[0].order) * (w - L - R);
+  const orderSpan = rows.at(-1).order - rows[0].order || 1;
+  const x = (v) => L + (v - rows[0].order) / orderSpan * (w - L - R);
   const y = (v) => h - B - (v - min) / (max - min) * (h - T - B);
   let out = '';
   for (let i = 0; i < 5; i++) {
     const v = min + i * (max - min) / 4;
-    out += `<line x1="${L}" y1="${y(v)}" x2="${w-R}" y2="${y(v)}" stroke="#e9eee7" stroke-dasharray="3 4"/><text x="${L-9}" y="${y(v)+3}" text-anchor="end" fill="#89998a" font-size="9">${(v/1000).toFixed(0)}k</text>`;
+    out += `<line x1="${L}" y1="${y(v)}" x2="${w-R}" y2="${y(v)}" stroke="#e9eee7" stroke-dasharray="3 4"/><text x="${L-9}" y="${y(v)+3}" text-anchor="end" fill="#89998a" font-size="11">${(v/1000).toFixed(0)}k</text>`;
   }
   for (let i = 0; i < 5; i++) {
     const q = rows[Math.round(i * (rows.length - 1) / 4)].order;
-    out += `<text x="${x(q)}" y="${h-7}" text-anchor="middle" fill="#89998a" font-size="9">${number(q)}</text>`;
+    out += `<text x="${x(q)}" y="${h-7}" text-anchor="middle" fill="#89998a" font-size="11">${number(q)}</text>`;
   }
-  out += '<text x="9" y="12" fill="#89998a" font-size="9">₹</text>';
+  out += '<text x="9" y="12" fill="#89998a" font-size="11">₹</text>';
   for (const [key, color] of [
       ['mean_profit', '#087f73'],
       ['score', '#b78c44']
@@ -74,7 +75,7 @@ function frontierChart(r) {
     }
   }
   const q = r.selected.order;
-  out += `<line x1="${x(q)}" y1="${T}" x2="${x(q)}" y2="${h-B}" stroke="#709987" stroke-dasharray="4 5"/><rect x="${Math.min(w-108,Math.max(L,x(q)-42))}" y="0" width="86" height="20" rx="4" fill="#edf4e9"/><text x="${Math.min(w-65,Math.max(L+43,x(q)+1))}" y="13" text-anchor="middle" fill="#376d51" font-size="9">Selected ${q}</text>`;
+  out += `<line x1="${x(q)}" y1="${T}" x2="${x(q)}" y2="${h-B}" stroke="#709987" stroke-dasharray="4 5"/><rect x="${Math.min(w-108,Math.max(L,x(q)-42))}" y="0" width="86" height="20" rx="4" fill="#edf4e9"/><text x="${Math.min(w-65,Math.max(L+43,x(q)+1))}" y="13" text-anchor="middle" fill="#376d51" font-size="11">Selected ${q}</text>`;
   $('frontier').innerHTML = svg(out, w, h);
 }
 
@@ -82,21 +83,21 @@ function histogram(r) {
   const {
     counts,
     edges
-  } = r.histogram, w = 480, h = 180, L = 38, R = 12, T = 12, B = 28, max = Math.max(...counts) * 1.1;
+  } = r.histogram, w = Math.max(280, $('histogram').clientWidth || 480), h = Math.max(160, $('histogram').clientHeight || 180), L = 44, R = 18, T = 12, B = 28, max = Math.max(...counts) * 1.1;
   const x = (i) => L + i / counts.length * (w - L - R);
   const y = v => h - B - v / max * (h - T - B);
   const bar = (w - L - R) / counts.length;
   let out = '';
   for (let i = 0; i < 4; i++) {
     const v = max * i / 3;
-    out += `<line x1="${L}" y1="${y(v)}" x2="${w-R}" y2="${y(v)}" stroke="#edf1e8"/><text x="${L-7}" y="${y(v)+3}" text-anchor="end" font-size="8" fill="#8b998b">${number(v)}</text>`;
+    out += `<line x1="${L}" y1="${y(v)}" x2="${w-R}" y2="${y(v)}" stroke="#edf1e8"/><text x="${L-7}" y="${y(v)+3}" text-anchor="end" font-size="10" fill="#8b998b">${number(v)}</text>`;
   }
   counts.forEach((c, i) => {
     out += `<rect x="${x(i)+1}" y="${y(c)}" width="${Math.max(1,bar-2)}" height="${h-B-y(c)}" rx="1.5" fill="${(edges[i]+edges[i+1])/2<0?'#cf755f':'#7da695'}"><title>${money(edges[i])} to ${money(edges[i+1])}: ${c} worlds</title></rect>`;
   });
   for (let i = 0; i < 4; i++) {
     const index = Math.round(i * counts.length / 3);
-    out += `<text x="${x(index)}" y="${h-7}" text-anchor="middle" font-size="8" fill="#8b998b">${(edges[index]/1000).toFixed(0)}k</text>`;
+    out += `<text x="${x(index)}" y="${h-7}" text-anchor="middle" font-size="10" fill="#8b998b">${(edges[index]/1000).toFixed(0)}k</text>`;
   }
   $('histogram').innerHTML = svg(out, w, h);
 }
@@ -252,7 +253,15 @@ function showView() {
   document.querySelectorAll('.view').forEach(el => el.hidden = el.id !== name);
   document.querySelectorAll('[data-view]').forEach(el => el.classList.toggle('active', el.dataset.view === name));
   if (name === 'history') history();
+  if (name === 'overview') redrawCharts();
 }
+function redrawCharts() {
+  if (result && !$('overview').hidden) {
+    frontierChart(result);
+    histogram(result);
+  }
+}
+window.addEventListener('resize', redrawCharts);
 window.addEventListener('hashchange', showView);
 $('refresh-history').addEventListener('click', history);
 async function boot() {
