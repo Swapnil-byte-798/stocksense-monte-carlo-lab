@@ -1,0 +1,108 @@
+// Selected order
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[selected_order]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Baseline order
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[baseline_order]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Modeled weekly profit GBP
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[mean_profit_proxy_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Baseline modeled profit GBP
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[baseline_profit_proxy_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Worst 5% profit GBP
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[tail_profit_proxy_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Paired modeled difference GBP
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[paired_delta_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Numerical CI low GBP
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[paired_ci_low_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Numerical CI high GBP
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[paired_ci_high_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Simulated fill proxy
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[fill_rate_proxy]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Baseline fill proxy
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[baseline_fill_rate_proxy]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Loss probability
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[loss_probability]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Evaluation worlds
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[evaluation_worlds]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Scenario selection
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(ISBLANK(p) || ISBLANK(s), "Choose one product and one complete scenario", p & " | " & s & " | modeled outcomes; not actual savings")
+
+// Observed weekly units
+SUM(WeeklySales[units])
+
+// Replay weekly profit GBP
+AVERAGE(ReplayWeekly[profit_proxy_gbp])
+
+// Replay fill proxy
+DIVIDE(SUM(ReplayWeekly[fulfilled_units]), SUM(ReplayWeekly[observed_sales]))
+
+// Replay unmet proxy
+SUM(ReplayWeekly[unmet_proxy_units])
+
+// Replay tail GBP
+AVERAGE(ReplaySummary[worst_5pct_profit_proxy_gbp])
+
+// Replay average order
+AVERAGE(ReplayWeekly[order])
+
+// Raw source rows
+MAX(CleaningAudit[rows])
+
+// Removed sale lines
+SUM(CleaningAudit[removed])
+
+// Curve mean GBP
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(PolicyCurve[mean_profit_proxy_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Curve tail GBP
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(PolicyCurve[tail_profit_proxy_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Curve score GBP
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(PolicyCurve[score_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))
+
+// Histogram worlds
+VAR p = IF(NOT ISCROSSFILTERED(Products), "85123A", SELECTEDVALUE(Products[stock_code]))
+VAR s = IF(NOT ISCROSSFILTERED(Scenarios), "R20-C55-S0", SELECTEDVALUE(Scenarios[scenario_key]))
+RETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(SUM(ProfitHistogram[worlds]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))

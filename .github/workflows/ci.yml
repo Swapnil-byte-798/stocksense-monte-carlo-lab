@@ -1,4 +1,4 @@
-name: Numerical and integration checks
+name: Numerical, data and Power BI checks
 on:
   push:
   pull_request:
@@ -16,33 +16,29 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           cache: pip
-      - run: python -m pip install -e .
+      - run: python -m pip install -e ".[data,dev]"
       - run: python -m unittest discover -s tests -v
+      - run: python scripts/validate_powerbi.py
       - run: python -m stocklab run --n 1024 --replicates 4
+      - run: python -m stocklab backtest
       - run: python -m stocklab calibrate examples/synthetic-demand.csv
       - uses: actions/upload-artifact@v4
         with:
-          name: smoke-run-python-${{ matrix.python }}
-          path: output/run.json
-  browser:
+          name: real-run-python-${{ matrix.python }}
+          path: output/*.json
+  powerbi-export:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - run: python -m pip install -e .
-      - run: npm install --ignore-scripts
-      - run: npx playwright install --with-deps chromium
-      - name: Exercise the interactive application
-        run: |
-          python -m stocklab serve > /tmp/stocksense.log 2>&1 &
-          npm run test:ui
+      - run: python -m pip install -e ".[dev]"
+      - name: Regenerate scenario mart at smoke-test sample size
+        run: python scripts/export_powerbi.py --n 256 --replicates 4
+      - run: python scripts/build_powerbi.py
+      - run: python scripts/validate_powerbi.py
       - uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: browser-evidence
-          path: output/browser/
+          name: powerbi-export-smoke
+          path: powerbi/data/export_manifest.json

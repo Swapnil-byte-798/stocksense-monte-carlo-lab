@@ -1,58 +1,40 @@
-# API and runbook
+# Runbook · Python and Power BI
 
-## Setup and operations
+The web interface/API from version 1 has been replaced by native Power BI source. No Node, JavaScript, HTML, CSS or local HTTP server is required.
 
-Use Python 3.11-3.13 and install the project in a fresh virtual environment with `python -m pip install -e .`. Start `python -m stocklab serve`; use `--port 8001` if port 8000 is occupied. Stop with Ctrl+C. The default listener is loopback. Avoid exposing it directly to the internet.
+## First use
 
-The numerical dependencies are pinned. To deliberately upgrade them, rerun the numerical checks, sampling benchmark, and saved evidence, then document the new versions. A fixed seed alone is not a cross-version reproducibility guarantee. See [NumPy's Generator documentation](https://numpy.org/doc/stable/reference/random/generator.html).
+Follow [powerbi/README.md](../powerbi/README.md). Install Python3.11–3.13, create/activate a venv, `pip install -e .`, run `python scripts/configure_powerbi.py`, open `powerbi/StockSense.pbip` in current Windows Power BI Desktop and Refresh. Bundled imports make raw-data download optional. If PBIP/PBIR features are disabled in your Desktop release, enable the corresponding project/enhanced-report preview options and restart. Save a PBIX locally after successful refresh if preferred.
 
-## Endpoints
-
-| Method / path | Response |
-|---|---|
-| GET /api/health | Local server status |
-| GET /api/defaults | Default scenario object |
-| POST /api/run | Complete experiment; appends to SQLite |
-| GET /api/history | Most recent 20 completed local runs |
-| GET / | Dashboard |
-
-Example request:
+## Python operations
 
 ```bash
-curl http://127.0.0.1:8000/api/run \
-  -H 'Content-Type: application/json' \
-  -d '{"scenario":{"demand_mean":1000,"demand_cv":0.35,"risk_weight":0.2},"method":"sobol","n":4096,"replicates":12,"seed":2026}'
+python -m stocklab defaults > scenario.json
+python -m stocklab run --product 85123A --config scenario.json
+python -m stocklab run --product 85099B --method mc --n 4096 --replicates 12 --seed 2026
+python -m stocklab backtest
+python -m stocklab data
+python scripts/export_powerbi.py
+python scripts/configure_powerbi.py
 ```
 
-Unspecified scenario values use defaults. Unknown fields are rejected. Sobol requires power-of-two N. `GET /api/defaults` or `python -m stocklab defaults` gives the complete scenario object; `examples/scenario.json` is a reusable starting point. Validate the relationship salvage < cost < selling price when changing economics.
+`run --config` accepts scenario fields, not the complete exported result. Real mode fixes observed history/moments/grid from the selected SKU; economic/risk/supply fields are assumptions that may be overridden after validation. JSON and SQLite are written under `output/`; full contexts retain currency and source. Custom CLI runs do not automatically join the fixed BI scenario cube. To change the BI cube's economic combinations, edit the documented `SCENARIO_GRID` in exporter, regenerate and rebuild the native project, then Refresh. Changing only N/seed/method requires export then Refresh; no report rebuild.
 
-## Export and history
-
-The dashboard exports the complete result as JSON or a two-row comparison as CSV. The experiment log stores only completed runs. Use `sql/analysis.sql` to compare runs and inspect paired differences. The database lives at `output/experiments.db`; the CLI can choose a different database with `--database`.
-
-For a read-only static preview, serve `stocklab/web` with a static file server. It loads `example.json`, labels itself a saved experiment, and disables simulation controls. It does not compute Monte Carlo results in the browser. Do not open index.html directly with file://; browser fetch restrictions can prevent loading the example.
-
-## Calibration
+## Reproduction and tests
 
 ```bash
-python -m stocklab calibrate examples/synthetic-demand.csv
+python -m pip install -e ".[data,dev]"
+python scripts/prepare_retail.py
+python scripts/reproduce.py
+python scripts/configure_powerbi.py
+python -m unittest discover -s tests -v
+python scripts/validate_powerbi.py
 ```
 
-Input columns must be exactly `date,demand`. Dates are unique ISO dates. Require at least 30 positive finite observations. Output contains fitted demand mean/CV, observation count, date range, fitting method, and CSV SHA-256. Copy the fitted mean and CV into an explicitly reviewed scenario; calibration does not silently change a model. This simple lognormal fit does not handle zeros, sales censored by stockouts, or seasonal demand.
+The original~46MB Excel rebuild checks raw hashes, creates attributed aggregates and keeps customer identifiers out of exports. Raw files go in ignored `data/raw/`. A hash mismatch requires investigation, not bypass. Reproduction also generates clearly named synthetic/reference examples and the analytic MC/Sobol benchmark. Those are not real company results.
 
 ## Troubleshooting
 
-| Symptom | Action |
-|---|---|
-| No module named stocklab | Run from repository root or install with `python -m pip install -e .` |
-| Address already in use | Use `--port 8001` or stop the process occupying the port |
-| Saved experiment preview displayed | Start the Python server and open its URL; a static server cannot run Python simulations |
-| Inputs changed but charts did not | Click Run simulation; charts describe the last completed run |
-| Invalid price/cost message | Keep 0 <= salvage < cost < selling price |
-| Selected order at grid boundary | Expand the CLI/API grid, then repeat selection and independent evaluation |
-| API returns 429 | A local simulation is still running; retry after it completes |
-| Permission error writing SQLite | Choose a writable working directory or CLI `--database` path |
+Power BI is Windows Desktop software; it is not rendered by Python. If CSVs are missing, rerun configuration and check DataFolder via Transform data→Manage Parameters. Choose trusted local filesystem sources and refresh after Python export. Avoid moving the data folder while Desktop is open. Blank simulation KPIs mean choose one product and one complete scenario; clearing all slicers uses the named default. Scenario slicers do not run Python or imply fresh simulations. Import-mode Service refresh would require a supported accessible data location/gateway and separate deployment work; no Service deployment is claimed.
 
-## Public deployment boundary
-
-The demo uses an exact static allowlist, same-origin checks for browser POSTs, content-type and size validation, numerical workload caps, and one simulation lock. It has no authentication, authorization, request queue, production rate limiter, or database backup service. These features must be designed before public multi-user deployment. A Dockerfile is packaging, not proof of production readiness.
+`Power BI Desktop` must execute/validate M and DAX. CI validates JSON schemas and references, not native rendering. Use the Windows acceptance checklist before a live interview demo.

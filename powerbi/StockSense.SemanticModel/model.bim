@@ -1,0 +1,1072 @@
+{
+  "name": "StockSense",
+  "compatibilityLevel": 1567,
+  "model": {
+    "culture": "en-GB",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "dataAccessOptions": {
+      "legacyRedirects": true,
+      "returnErrorValuesAsNull": true
+    },
+    "tables": [
+      {
+        "name": "Products",
+        "columns": [
+          {
+            "name": "stock_code",
+            "dataType": "string",
+            "sourceColumn": "stock_code",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "description",
+            "dataType": "string",
+            "sourceColumn": "description",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "training_units",
+            "dataType": "int64",
+            "sourceColumn": "training_units",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "training_active_weeks",
+            "dataType": "int64",
+            "sourceColumn": "training_active_weeks",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "reference_price_gbp",
+            "dataType": "double",
+            "sourceColumn": "reference_price_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "product_label",
+            "dataType": "string",
+            "sourceColumn": "product_label",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Products",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\Products.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"stock_code\", type text}, {\"description\", type text}, {\"training_units\", Int64.Type}, {\"training_active_weeks\", Int64.Type}, {\"reference_price_gbp\", type number}, {\"product_label\", type text}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Weeks",
+        "columns": [
+          {
+            "name": "week_start",
+            "dataType": "dateTime",
+            "sourceColumn": "week_start",
+            "summarizeBy": "none",
+            "formatString": "yyyy-mm-dd"
+          },
+          {
+            "name": "week_index",
+            "dataType": "int64",
+            "sourceColumn": "week_index",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "split",
+            "dataType": "string",
+            "sourceColumn": "split",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year",
+            "summarizeBy": "sum"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Weeks",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\Weeks.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"week_start\", type date}, {\"week_index\", Int64.Type}, {\"split\", type text}, {\"year\", Int64.Type}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "WeeklySales",
+        "columns": [
+          {
+            "name": "stock_code",
+            "dataType": "string",
+            "sourceColumn": "stock_code",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "week_start",
+            "dataType": "dateTime",
+            "sourceColumn": "week_start",
+            "summarizeBy": "none",
+            "formatString": "yyyy-mm-dd"
+          },
+          {
+            "name": "units",
+            "dataType": "int64",
+            "sourceColumn": "units",
+            "summarizeBy": "sum"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "WeeklySales",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\WeeklySales.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"stock_code\", type text}, {\"week_start\", type date}, {\"units\", Int64.Type}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Scenarios",
+        "columns": [
+          {
+            "name": "scenario_key",
+            "dataType": "string",
+            "sourceColumn": "scenario_key",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "scenario_label",
+            "dataType": "string",
+            "sourceColumn": "scenario_label",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "risk_weight",
+            "dataType": "int64",
+            "sourceColumn": "risk_weight",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "cost_fraction",
+            "dataType": "double",
+            "sourceColumn": "cost_fraction",
+            "summarizeBy": "sum",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "disruption_probability",
+            "dataType": "int64",
+            "sourceColumn": "disruption_probability",
+            "summarizeBy": "sum",
+            "formatString": "0.0%"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Scenarios",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\Scenarios.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"scenario_key\", type text}, {\"scenario_label\", type text}, {\"risk_weight\", Int64.Type}, {\"cost_fraction\", type number}, {\"disruption_probability\", Int64.Type}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "SimulationSummary",
+        "columns": [
+          {
+            "name": "stock_code",
+            "dataType": "string",
+            "sourceColumn": "stock_code",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "scenario_key",
+            "dataType": "string",
+            "sourceColumn": "scenario_key",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "config_id",
+            "dataType": "string",
+            "sourceColumn": "config_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "selected_order",
+            "dataType": "int64",
+            "sourceColumn": "selected_order",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "baseline_order",
+            "dataType": "int64",
+            "sourceColumn": "baseline_order",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "mean_profit_proxy_gbp",
+            "dataType": "double",
+            "sourceColumn": "mean_profit_proxy_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "baseline_profit_proxy_gbp",
+            "dataType": "double",
+            "sourceColumn": "baseline_profit_proxy_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "tail_profit_proxy_gbp",
+            "dataType": "double",
+            "sourceColumn": "tail_profit_proxy_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "baseline_tail_profit_proxy_gbp",
+            "dataType": "double",
+            "sourceColumn": "baseline_tail_profit_proxy_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "fill_rate_proxy",
+            "dataType": "double",
+            "sourceColumn": "fill_rate_proxy",
+            "summarizeBy": "sum",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "baseline_fill_rate_proxy",
+            "dataType": "double",
+            "sourceColumn": "baseline_fill_rate_proxy",
+            "summarizeBy": "sum",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "loss_probability",
+            "dataType": "double",
+            "sourceColumn": "loss_probability",
+            "summarizeBy": "sum",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "stockout_probability_proxy",
+            "dataType": "double",
+            "sourceColumn": "stockout_probability_proxy",
+            "summarizeBy": "sum",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "paired_delta_gbp",
+            "dataType": "double",
+            "sourceColumn": "paired_delta_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "paired_ci_low_gbp",
+            "dataType": "double",
+            "sourceColumn": "paired_ci_low_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "paired_ci_high_gbp",
+            "dataType": "double",
+            "sourceColumn": "paired_ci_high_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "mean_ci_low_gbp",
+            "dataType": "double",
+            "sourceColumn": "mean_ci_low_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "mean_ci_high_gbp",
+            "dataType": "double",
+            "sourceColumn": "mean_ci_high_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "method",
+            "dataType": "string",
+            "sourceColumn": "method",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "seed",
+            "dataType": "int64",
+            "sourceColumn": "seed",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "selection_worlds",
+            "dataType": "int64",
+            "sourceColumn": "selection_worlds",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "evaluation_worlds",
+            "dataType": "int64",
+            "sourceColumn": "evaluation_worlds",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "replicates",
+            "dataType": "int64",
+            "sourceColumn": "replicates",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "history_sha256",
+            "dataType": "string",
+            "sourceColumn": "history_sha256",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "SimulationSummary",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\SimulationSummary.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"stock_code\", type text}, {\"scenario_key\", type text}, {\"config_id\", type text}, {\"selected_order\", Int64.Type}, {\"baseline_order\", Int64.Type}, {\"mean_profit_proxy_gbp\", type number}, {\"baseline_profit_proxy_gbp\", type number}, {\"tail_profit_proxy_gbp\", type number}, {\"baseline_tail_profit_proxy_gbp\", type number}, {\"fill_rate_proxy\", type number}, {\"baseline_fill_rate_proxy\", type number}, {\"loss_probability\", type number}, {\"stockout_probability_proxy\", type number}, {\"paired_delta_gbp\", type number}, {\"paired_ci_low_gbp\", type number}, {\"paired_ci_high_gbp\", type number}, {\"mean_ci_low_gbp\", type number}, {\"mean_ci_high_gbp\", type number}, {\"method\", type text}, {\"seed\", Int64.Type}, {\"selection_worlds\", Int64.Type}, {\"evaluation_worlds\", Int64.Type}, {\"replicates\", Int64.Type}, {\"history_sha256\", type text}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Selected order",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[selected_order]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Baseline order",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[baseline_order]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Modeled weekly profit GBP",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[mean_profit_proxy_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Baseline modeled profit GBP",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[baseline_profit_proxy_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Worst 5% profit GBP",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[tail_profit_proxy_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Paired modeled difference GBP",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[paired_delta_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Numerical CI low GBP",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[paired_ci_low_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Numerical CI high GBP",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[paired_ci_high_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Simulated fill proxy",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[fill_rate_proxy]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "Baseline fill proxy",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[baseline_fill_rate_proxy]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "Loss probability",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[loss_probability]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "Evaluation worlds",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(SimulationSummary[evaluation_worlds]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Scenario selection",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(ISBLANK(p) || ISBLANK(s), \"Choose one product and one complete scenario\", p & \" | \" & s & \" | modeled outcomes; not actual savings\")",
+            "displayFolder": "StockSense measures"
+          },
+          {
+            "name": "Observed weekly units",
+            "expression": "SUM(WeeklySales[units])",
+            "displayFolder": "StockSense measures",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Replay weekly profit GBP",
+            "expression": "AVERAGE(ReplayWeekly[profit_proxy_gbp])",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Replay fill proxy",
+            "expression": "DIVIDE(SUM(ReplayWeekly[fulfilled_units]), SUM(ReplayWeekly[observed_sales]))",
+            "displayFolder": "StockSense measures",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "Replay unmet proxy",
+            "expression": "SUM(ReplayWeekly[unmet_proxy_units])",
+            "displayFolder": "StockSense measures",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Replay tail GBP",
+            "expression": "AVERAGE(ReplaySummary[worst_5pct_profit_proxy_gbp])",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Replay average order",
+            "expression": "AVERAGE(ReplayWeekly[order])",
+            "displayFolder": "StockSense measures",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Raw source rows",
+            "expression": "MAX(CleaningAudit[rows])",
+            "displayFolder": "StockSense measures",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Removed sale lines",
+            "expression": "SUM(CleaningAudit[removed])",
+            "displayFolder": "StockSense measures",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Curve mean GBP",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(PolicyCurve[mean_profit_proxy_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Curve tail GBP",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(PolicyCurve[tail_profit_proxy_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Curve score GBP",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(MAX(PolicyCurve[score_gbp]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "Histogram worlds",
+            "expression": "VAR p = IF(NOT ISCROSSFILTERED(Products), \"85123A\", SELECTEDVALUE(Products[stock_code]))\nVAR s = IF(NOT ISCROSSFILTERED(Scenarios), \"R20-C55-S0\", SELECTEDVALUE(Scenarios[scenario_key]))\nRETURN IF(NOT ISBLANK(p) && NOT ISBLANK(s), CALCULATE(SUM(ProfitHistogram[worlds]), KEEPFILTERS(Products[stock_code]=p), KEEPFILTERS(Scenarios[scenario_key]=s)))",
+            "displayFolder": "StockSense measures",
+            "formatString": "#,0"
+          }
+        ]
+      },
+      {
+        "name": "PolicyCurve",
+        "columns": [
+          {
+            "name": "stock_code",
+            "dataType": "string",
+            "sourceColumn": "stock_code",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "scenario_key",
+            "dataType": "string",
+            "sourceColumn": "scenario_key",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order",
+            "dataType": "int64",
+            "sourceColumn": "order",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "mean_profit_proxy_gbp",
+            "dataType": "double",
+            "sourceColumn": "mean_profit_proxy_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "tail_profit_proxy_gbp",
+            "dataType": "double",
+            "sourceColumn": "tail_profit_proxy_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "score_gbp",
+            "dataType": "double",
+            "sourceColumn": "score_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "fill_rate_proxy",
+            "dataType": "double",
+            "sourceColumn": "fill_rate_proxy",
+            "summarizeBy": "sum",
+            "formatString": "0.0%"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "PolicyCurve",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\PolicyCurve.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"stock_code\", type text}, {\"scenario_key\", type text}, {\"order\", Int64.Type}, {\"mean_profit_proxy_gbp\", type number}, {\"tail_profit_proxy_gbp\", type number}, {\"score_gbp\", type number}, {\"fill_rate_proxy\", type number}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "ProfitHistogram",
+        "columns": [
+          {
+            "name": "stock_code",
+            "dataType": "string",
+            "sourceColumn": "stock_code",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "scenario_key",
+            "dataType": "string",
+            "sourceColumn": "scenario_key",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "bin_index",
+            "dataType": "int64",
+            "sourceColumn": "bin_index",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "bin_low_gbp",
+            "dataType": "double",
+            "sourceColumn": "bin_low_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "bin_mid_gbp",
+            "dataType": "double",
+            "sourceColumn": "bin_mid_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "bin_high_gbp",
+            "dataType": "double",
+            "sourceColumn": "bin_high_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "worlds",
+            "dataType": "int64",
+            "sourceColumn": "worlds",
+            "summarizeBy": "sum"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "ProfitHistogram",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\ProfitHistogram.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"stock_code\", type text}, {\"scenario_key\", type text}, {\"bin_index\", Int64.Type}, {\"bin_low_gbp\", type number}, {\"bin_mid_gbp\", type number}, {\"bin_high_gbp\", type number}, {\"worlds\", Int64.Type}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "ReplaySummary",
+        "columns": [
+          {
+            "name": "stock_code",
+            "dataType": "string",
+            "sourceColumn": "stock_code",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "policy",
+            "dataType": "string",
+            "sourceColumn": "policy",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "weeks",
+            "dataType": "int64",
+            "sourceColumn": "weeks",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "mean_profit_proxy_gbp",
+            "dataType": "double",
+            "sourceColumn": "mean_profit_proxy_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "total_profit_proxy_gbp",
+            "dataType": "double",
+            "sourceColumn": "total_profit_proxy_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "worst_5pct_profit_proxy_gbp",
+            "dataType": "double",
+            "sourceColumn": "worst_5pct_profit_proxy_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "fill_rate_proxy",
+            "dataType": "double",
+            "sourceColumn": "fill_rate_proxy",
+            "summarizeBy": "sum",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "stockout_probability_proxy",
+            "dataType": "double",
+            "sourceColumn": "stockout_probability_proxy",
+            "summarizeBy": "sum",
+            "formatString": "0.0%"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "ReplaySummary",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\ReplaySummary.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"stock_code\", type text}, {\"policy\", type text}, {\"weeks\", Int64.Type}, {\"mean_profit_proxy_gbp\", type number}, {\"total_profit_proxy_gbp\", type number}, {\"worst_5pct_profit_proxy_gbp\", type number}, {\"fill_rate_proxy\", type number}, {\"stockout_probability_proxy\", type number}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "ReplayWeekly",
+        "columns": [
+          {
+            "name": "stock_code",
+            "dataType": "string",
+            "sourceColumn": "stock_code",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "week_start",
+            "dataType": "dateTime",
+            "sourceColumn": "week_start",
+            "summarizeBy": "none",
+            "formatString": "yyyy-mm-dd"
+          },
+          {
+            "name": "training_last_week",
+            "dataType": "dateTime",
+            "sourceColumn": "training_last_week",
+            "summarizeBy": "none",
+            "formatString": "yyyy-mm-dd"
+          },
+          {
+            "name": "policy",
+            "dataType": "string",
+            "sourceColumn": "policy",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order",
+            "dataType": "int64",
+            "sourceColumn": "order",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "observed_sales",
+            "dataType": "int64",
+            "sourceColumn": "observed_sales",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "profit_proxy_gbp",
+            "dataType": "double",
+            "sourceColumn": "profit_proxy_gbp",
+            "summarizeBy": "sum",
+            "formatString": "£#,0.00;(£#,0.00);£0.00"
+          },
+          {
+            "name": "fulfilled_units",
+            "dataType": "double",
+            "sourceColumn": "fulfilled_units",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "unmet_proxy_units",
+            "dataType": "double",
+            "sourceColumn": "unmet_proxy_units",
+            "summarizeBy": "sum"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "ReplayWeekly",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\ReplayWeekly.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"stock_code\", type text}, {\"week_start\", type date}, {\"training_last_week\", type date}, {\"policy\", type text}, {\"order\", Int64.Type}, {\"observed_sales\", Int64.Type}, {\"profit_proxy_gbp\", type number}, {\"fulfilled_units\", type number}, {\"unmet_proxy_units\", type number}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "ForecastDiagnostics",
+        "columns": [
+          {
+            "name": "stock_code",
+            "dataType": "string",
+            "sourceColumn": "stock_code",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "split",
+            "dataType": "string",
+            "sourceColumn": "split",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "policy",
+            "dataType": "string",
+            "sourceColumn": "policy",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "mae_units",
+            "dataType": "double",
+            "sourceColumn": "mae_units",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "wape",
+            "dataType": "double",
+            "sourceColumn": "wape",
+            "summarizeBy": "sum",
+            "formatString": "0.0%"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "ForecastDiagnostics",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\ForecastDiagnostics.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"stock_code\", type text}, {\"split\", type text}, {\"policy\", type text}, {\"mae_units\", type number}, {\"wape\", type number}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "CleaningAudit",
+        "columns": [
+          {
+            "name": "stage",
+            "dataType": "string",
+            "sourceColumn": "stage",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "rows",
+            "dataType": "int64",
+            "sourceColumn": "rows",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "removed",
+            "dataType": "int64",
+            "sourceColumn": "removed",
+            "summarizeBy": "sum"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "CleaningAudit",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\CleaningAudit.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"stage\", type text}, {\"rows\", Int64.Type}, {\"removed\", Int64.Type}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "ModelNotes",
+        "columns": [
+          {
+            "name": "topic",
+            "dataType": "string",
+            "sourceColumn": "topic",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "explanation",
+            "dataType": "string",
+            "sourceColumn": "explanation",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "ModelNotes",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"\\ModelNotes.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"topic\", type text}, {\"explanation\", type text}}, \"en-GB\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "f7f70ba8-9486-5138-81eb-b0863bad1342",
+        "fromTable": "WeeklySales",
+        "fromColumn": "stock_code",
+        "toTable": "Products",
+        "toColumn": "stock_code",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "5ca4d4f9-c93b-58f4-a887-c60ddbb3d2c0",
+        "fromTable": "SimulationSummary",
+        "fromColumn": "stock_code",
+        "toTable": "Products",
+        "toColumn": "stock_code",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "e066a089-c3ba-5410-b34b-0b1208235bfa",
+        "fromTable": "PolicyCurve",
+        "fromColumn": "stock_code",
+        "toTable": "Products",
+        "toColumn": "stock_code",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "cb969c5b-ced1-5081-aa56-4a255c34663f",
+        "fromTable": "ProfitHistogram",
+        "fromColumn": "stock_code",
+        "toTable": "Products",
+        "toColumn": "stock_code",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "23f74e86-e2b3-5e21-93bd-38978040041a",
+        "fromTable": "ReplaySummary",
+        "fromColumn": "stock_code",
+        "toTable": "Products",
+        "toColumn": "stock_code",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "0c57a9a7-735b-5b2c-bc0a-89ea3d0251d8",
+        "fromTable": "ReplayWeekly",
+        "fromColumn": "stock_code",
+        "toTable": "Products",
+        "toColumn": "stock_code",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "eb54921f-80f9-504f-a495-954ead706c68",
+        "fromTable": "ForecastDiagnostics",
+        "fromColumn": "stock_code",
+        "toTable": "Products",
+        "toColumn": "stock_code",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "a62850d1-0bfa-5fe4-8eb4-0f8e8707b045",
+        "fromTable": "SimulationSummary",
+        "fromColumn": "scenario_key",
+        "toTable": "Scenarios",
+        "toColumn": "scenario_key",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "b367ecdd-d70c-574c-a614-d803a59b9f20",
+        "fromTable": "PolicyCurve",
+        "fromColumn": "scenario_key",
+        "toTable": "Scenarios",
+        "toColumn": "scenario_key",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "e5c152b3-218b-5ff6-b9e2-4d180a075c0d",
+        "fromTable": "ProfitHistogram",
+        "fromColumn": "scenario_key",
+        "toTable": "Scenarios",
+        "toColumn": "scenario_key",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "55f02def-e1e4-5dc4-baf5-8ca9a2dbc342",
+        "fromTable": "WeeklySales",
+        "fromColumn": "week_start",
+        "toTable": "Weeks",
+        "toColumn": "week_start",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "a8420628-e3fc-524a-9747-f0bcb64976c4",
+        "fromTable": "ReplayWeekly",
+        "fromColumn": "week_start",
+        "toTable": "Weeks",
+        "toColumn": "week_start",
+        "crossFilteringBehavior": "oneDirection"
+      }
+    ],
+    "expressions": [
+      {
+        "name": "DataFolder",
+        "kind": "m",
+        "expression": "\"C:\\StockSense\\powerbi\\data\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "PBI_QueryOrder",
+        "value": "[\"DataFolder\", \"Products\", \"Weeks\", \"WeeklySales\", \"Scenarios\", \"SimulationSummary\", \"PolicyCurve\", \"ProfitHistogram\", \"ReplaySummary\", \"ReplayWeekly\", \"ForecastDiagnostics\", \"CleaningAudit\", \"ModelNotes\"]"
+      }
+    ]
+  }
+}

@@ -5,6 +5,8 @@ WITH ranked AS (
   FROM runs
 )
 SELECT id, config_id, method, selected_order,
+       COALESCE(json_extract(result_json, '$.config.data_context.currency'), 'INR') AS currency,
+       json_extract(result_json, '$.config.data_context.stock_code') AS stock_code,
        ROUND(mean_profit, 2) AS mean_profit,
        ROUND(tail_profit, 2) AS tail_profit
 FROM ranked WHERE version_rank = 1 ORDER BY id DESC LIMIT 20;

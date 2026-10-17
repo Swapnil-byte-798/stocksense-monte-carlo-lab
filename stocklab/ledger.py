@@ -26,7 +26,15 @@ def save(result, path="output/experiments.db"):
         conn.executescript(SCHEMA)
         cursor = conn.execute(
             "INSERT INTO runs(created_at, config_id, method, selected_order, mean_profit, tail_profit, result_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (result["created_at"], result["config_id"], result["config"]["method"], result["selected"]["order"], result["selected"]["mean_profit"], result["selected"]["tail_profit"], json.dumps(result, allow_nan=False)),
+            (
+                result["created_at"],
+                result["config_id"],
+                result["config"]["method"],
+                result["selected"]["order"],
+                result["selected"]["mean_profit"],
+                result["selected"]["tail_profit"],
+                json.dumps(result, allow_nan=False),
+            ),
         )
         return cursor.lastrowid
 
@@ -36,4 +44,10 @@ def recent(path="output/experiments.db", limit=20):
         return []
     with sqlite3.connect(path) as conn:
         conn.row_factory = sqlite3.Row
-        return [dict(r) for r in conn.execute("SELECT id, created_at, config_id, method, selected_order, mean_profit, tail_profit FROM runs ORDER BY id DESC LIMIT ?", (limit,))]
+        return [
+            dict(r)
+            for r in conn.execute(
+                "SELECT id, created_at, config_id, method, selected_order, mean_profit, tail_profit, COALESCE(json_extract(result_json, '$.config.data_context.currency'), 'INR') AS currency FROM runs ORDER BY id DESC LIMIT ?",
+                (limit,),
+            )
+        ]

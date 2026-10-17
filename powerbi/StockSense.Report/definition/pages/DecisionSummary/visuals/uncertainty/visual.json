@@ -1,0 +1,210 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "uncertainty",
+  "position": {
+    "x": 860,
+    "y": 420,
+    "z": 12,
+    "height": 330,
+    "width": 556,
+    "tabOrder": 12
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SimulationSummary"
+                    }
+                  },
+                  "Property": "Baseline order"
+                }
+              },
+              "queryRef": "SimulationSummary.Baseline order",
+              "nativeQueryRef": "Baseline order"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SimulationSummary"
+                    }
+                  },
+                  "Property": "Baseline modeled profit GBP"
+                }
+              },
+              "queryRef": "SimulationSummary.Baseline modeled profit GBP",
+              "nativeQueryRef": "Baseline modeled profit GBP"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SimulationSummary"
+                    }
+                  },
+                  "Property": "Baseline fill proxy"
+                }
+              },
+              "queryRef": "SimulationSummary.Baseline fill proxy",
+              "nativeQueryRef": "Baseline fill proxy"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SimulationSummary"
+                    }
+                  },
+                  "Property": "Paired modeled difference GBP"
+                }
+              },
+              "queryRef": "SimulationSummary.Paired modeled difference GBP",
+              "nativeQueryRef": "Paired modeled difference GBP"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SimulationSummary"
+                    }
+                  },
+                  "Property": "Numerical CI low GBP"
+                }
+              },
+              "queryRef": "SimulationSummary.Numerical CI low GBP",
+              "nativeQueryRef": "Numerical CI low GBP"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SimulationSummary"
+                    }
+                  },
+                  "Property": "Numerical CI high GBP"
+                }
+              },
+              "queryRef": "SimulationSummary.Numerical CI high GBP",
+              "nativeQueryRef": "Numerical CI high GBP"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#DCE6DE'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "10"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Final-refit simulation · paired numerical interval only'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#173E39'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

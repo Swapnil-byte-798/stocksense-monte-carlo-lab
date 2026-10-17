@@ -21,7 +21,9 @@ def calibrate(path):
             dates.append(date.fromisoformat(row["date"]))
             value = float(row["demand"])
             if not np.isfinite(value) or value <= 0:
-                raise ValueError("demand must be positive and finite; zero-demand data needs a different model")
+                raise ValueError(
+                    "demand must be positive and finite; zero-demand data needs a different model"
+                )
             observations.append(value)
     if len(observations) < 30 or len(set(dates)) != len(dates):
         raise ValueError("need >=30 observations with unique dates")
@@ -31,4 +33,13 @@ def calibrate(path):
     cv = float(np.sqrt(np.expm1(variance)))
     if not np.isfinite(mean) or not np.isfinite(cv) or not 1 <= mean <= 1e6 or cv > 2:
         raise ValueError("fitted moments exceed supported scenario bounds")
-    return {"demand_mean": mean, "demand_cv": cv, "observations": len(observations), "first_date": min(dates).isoformat(), "last_date": max(dates).isoformat(), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "method": "lognormal maximum likelihood, positive demand only", "warning": "No seasonality, censoring correction, or parameter-uncertainty intervals; validate fit before use."}
+    return {
+        "demand_mean": mean,
+        "demand_cv": cv,
+        "observations": len(observations),
+        "first_date": min(dates).isoformat(),
+        "last_date": max(dates).isoformat(),
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "method": "lognormal maximum likelihood, positive demand only",
+        "warning": "No seasonality, censoring correction, or parameter-uncertainty intervals; validate fit before use.",
+    }

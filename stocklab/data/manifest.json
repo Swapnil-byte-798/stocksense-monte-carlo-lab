@@ -1,0 +1,111 @@
+{
+  "dataset": "UCI Online Retail II",
+  "dataset_id": 502,
+  "citation": "Chen, D. (2012). Online Retail II [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C5CG6D",
+  "source_url": "https://archive.ics.uci.edu/static/public/502/online%2Bretail%2Bii.zip",
+  "source_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
+  "workbook_sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980",
+  "derived_sha256": "f661b2d38b5a231a5ee99c6def06f89d997722360b18212a1ac42e25194df7ee",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "raw_rows": 1067371,
+  "cleaned_rows": 892892,
+  "cleaning_audit": [
+    {
+      "stage": "raw",
+      "rows": 1067371,
+      "removed": 0
+    },
+    {
+      "stage": "exact_duplicate_lines_removed",
+      "rows": 1033036,
+      "removed": 34335
+    },
+    {
+      "stage": "valid_dates",
+      "rows": 1033036,
+      "removed": 0
+    },
+    {
+      "stage": "cancellations_excluded",
+      "rows": 1013932,
+      "removed": 19104
+    },
+    {
+      "stage": "positive_finite_quantity",
+      "rows": 1010539,
+      "removed": 3393
+    },
+    {
+      "stage": "positive_finite_price",
+      "rows": 1007913,
+      "removed": 2626
+    },
+    {
+      "stage": "merchandise_code_pattern",
+      "rows": 1002005,
+      "removed": 5908
+    },
+    {
+      "stage": "uk_scope",
+      "rows": 922366,
+      "removed": 79639
+    },
+    {
+      "stage": "complete_week_boundaries",
+      "rows": 892892,
+      "removed": 29474
+    }
+  ],
+  "first_week": "2009-12-07",
+  "last_week": "2011-11-28",
+  "weeks_per_product": 104,
+  "train_weeks": 52,
+  "validation_weeks": 13,
+  "test_weeks": 39,
+  "selection_rule": "Top five initial-52-week unit volume SKUs; >=39 active training weeks; CV<=2; ties by code. No holdout-based selection.",
+  "products": [
+    {
+      "stock_code": "85123A",
+      "description": "WHITE HANGING HEART T-LIGHT HOLDER",
+      "training_units": 50964,
+      "training_active_weeks": 51,
+      "reference_price_gbp": 2.95
+    },
+    {
+      "stock_code": "84077",
+      "description": "WORLD WAR 2 GLIDERS ASSTD DESIGNS",
+      "training_units": 50698,
+      "training_active_weeks": 51,
+      "reference_price_gbp": 0.21
+    },
+    {
+      "stock_code": "21212",
+      "description": "PACK OF 72 RETRO SPOT CAKE CASES",
+      "training_units": 45437,
+      "training_active_weeks": 51,
+      "reference_price_gbp": 0.55
+    },
+    {
+      "stock_code": "85099B",
+      "description": "JUMBO BAG RED RETROSPOT",
+      "training_units": 43346,
+      "training_active_weeks": 51,
+      "reference_price_gbp": 1.95
+    },
+    {
+      "stock_code": "84879",
+      "description": "ASSORTED COLOUR BIRD ORNAMENT",
+      "training_units": 39595,
+      "training_active_weeks": 51,
+      "reference_price_gbp": 1.69
+    }
+  ],
+  "limitations": [
+    "Sales are a demand proxy; stock availability and lost demand are unobserved.",
+    "Exact duplicate removal is an assumption; repeated legitimate identical lines cannot be distinguished.",
+    "Missing customer IDs are retained; identifiers are not exported.",
+    "Zero sales do not prove zero demand or availability.",
+    "Costs, salvage, penalties and supplier stress are assumptions."
+  ]
+}

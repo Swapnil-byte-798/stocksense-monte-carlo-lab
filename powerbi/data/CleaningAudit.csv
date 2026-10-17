@@ -1,0 +1,10 @@
+stage,rows,removed
+raw,1067371,0
+exact_duplicate_lines_removed,1033036,34335
+valid_dates,1033036,0
+cancellations_excluded,1013932,19104
+positive_finite_quantity,1010539,3393
+positive_finite_price,1007913,2626
+merchandise_code_pattern,1002005,5908
+uk_scope,922366,79639
+complete_week_boundaries,892892,29474

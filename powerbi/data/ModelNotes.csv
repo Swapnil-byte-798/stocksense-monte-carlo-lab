@@ -1,0 +1,9 @@
+topic,explanation
+Source,"Chen, D. (2012). Online Retail II [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C5CG6D | CC BY 4.0; filtered and aggregated derivative."
+Sales ≠ demand,Inventory availability and lost demand are absent; zero sales may reflect missing availability.
+Economics,"Reference price observed in initial training. Costs 45/55/65%, salvage 10%, penalty 10% are assumptions."
+Historical test,"52 initial training, 13 diagnostics, 39 rolling test weeks. Each decision sees preceding 52 weeks only."
+Numerical CI,"Paired independent-replicate numerical interval; excludes history, model and economic uncertainty."
+Supply stress,"Hypothetical disruption 0/10/25%; delivered fraction 65%, latent correlation 0. No observed supplier data."
+Scenario explorer,Slicers select precomputed seeded runs. New assumptions require Python export then Power BI Refresh.
+Business limit,"Modeled profit/service proxies. No actual company savings, causal uplift or live procurement."

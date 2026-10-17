@@ -1,131 +1,104 @@
-<div align="center">
+# StockSense · Monte Carlo + Power BI
 
-# StockSense
-### Monte Carlo Decision Lab
+**Real retail data. Auditable Python decisions. An interactive Power BI report.**
 
-**Turn uncertainty into an inventory decision you can explain.**
+[![CI](https://github.com/Swapnil-byte-798/stocksense-monte-carlo-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/Swapnil-byte-798/stocksense-monte-carlo-lab/actions/workflows/ci.yml)
 
-Python · NumPy · SciPy · Monte Carlo · SQL · Statistical validation
+A decision-science portfolio project that connects data engineering, statistics, inventory optimization, SQL and business intelligence. **Power BI is the primary interface. No JavaScript, HTML or CSS is required.** The Python engine handles data cleaning, simulations and historical evaluation; the report explains the results.
 
-![Numerical and browser checks](https://github.com/Swapnil-byte-798/stocksense-monte-carlo-lab/actions/workflows/ci.yml/badge.svg)
+## Start on Windows
 
-[Quick start](#run-in-three-steps) · [Study guide](docs/STUDY_GUIDE.md) · [Model specification](docs/METHODOLOGY.md) · [Interview kit](docs/INTERVIEW_KIT.md)
+Install Python 3.11–3.13 and a current [Power BI Desktop](https://learn.microsoft.com/en-us/power-bi/fundamentals/desktop-get-the-desktop). Download or clone this repository and open a terminal in its root:
 
-</div>
-
-![StockSense interactive dashboard from a verified browser run](docs/dashboard.png)
-
-## The business question
-
-A retailer must order inventory before knowing demand or whether a supplier will deliver in full. Ordering too little loses sales; ordering too much creates expensive leftovers. **Which order quantity offers a sensible balance between average profit and bad outcomes?**
-
-StockSense simulates demand and supply, compares 57 candidate orders, selects a policy, and evaluates it on fresh simulated worlds. An interactive dashboard makes the assumptions and trade-offs visible. A SQLite ledger retains the full experiment.
-
-This is an original educational portfolio implementation with synthetic data. It is not a production procurement system, a historical backtest, or evidence of realized business savings. AI assistance was used in development and documentation; the numerical behavior is checked with explicit tests and an analytic oracle.
-
-## Run in three steps
-
-Requires Python 3.11-3.13. Run these commands from the repository root.
-
-```bash
-git clone https://github.com/Swapnil-byte-798/stocksense-monte-carlo-lab.git
-cd stocksense-monte-carlo-lab
+```powershell
 python -m venv .venv
-# macOS/Linux
-source .venv/bin/activate
-# Windows PowerShell instead: .venv\Scripts\Activate.ps1
-
+.venv\Scripts\Activate.ps1
 python -m pip install -e .
-python -m stocklab serve
+python scripts/configure_powerbi.py
 ```
 
-Open **http://127.0.0.1:8000**. Change a scenario, run the simulation, explore the charts, download the result, and inspect the experiment log. There are no API keys, paid services, external datasets, or frontend build steps.
+Open **`powerbi/StockSense.pbip`**, then select **Home → Refresh**. If requested, allow the trusted local CSV sources. The project is native PBIP/PBIR, not a renamed PBIX; you can save a PBIX from Desktop after refresh. Bundled CSVs make the first report refresh independent of Kaggle accounts, raw Excel downloads, or Python integration inside Power BI. See the [complete Power BI walkthrough](powerbi/README.md), including a first-refresh checklist.
 
-For a headless run:
+**Validation boundary:** report/project JSON has been checked against Microsoft's schemas; model references, relationships, data hashes and numerical outputs are checked in Python/CI. Power BI Desktop is unavailable in this environment, so Desktop import, DAX/M execution and visual rendering still require the documented Windows acceptance check. No rendered Desktop pass is claimed.
 
-```bash
-python -m stocklab run --method sobol --n 4096 --replicates 12 --seed 2026
-python -m unittest discover -s tests -v
-```
+## Six report pages
 
-## A result worth discussing
-
-The committed [default run](examples/default-run.json) uses 4,096 selection paths and **49,152 held-out paths across 12 independent evaluation replicates**. Sobol points within a replicate are deliberately dependent.
-
-| Metric | Selected: 975 units | Baseline: 1,000 units |
-|---|---:|---:|
-| Expected profit per period | ₹14,357.78 | ₹14,376.21 |
-| Average profit in worst 5% of outcomes | −₹1,093.24 | −₹1,295.84 |
-| Probability of a loss | 3.30% | 3.53% |
-| Unit-weighted demand fulfilled | 83.14% | 84.26% |
-
-The risk-sensitive policy gives up about **₹18.43 in average profit** for about **₹202.59 better worst-tail profit**. It also fulfills less demand. This is a preference trade-off, not an unconditional improvement. The paired 95% Monte Carlo interval for the average-profit difference is approximately **[−₹18.63, −₹18.24]**. It measures numerical uncertainty under the model, not uncertainty about the real world.
-
-## What makes the project substantive
-
-| Capability | Evidence in the repository |
+| Page | What you can explore |
 |---|---|
-| Business problem formulation | Profit identity, cost contract, explicit risk preference, baseline comparison |
-| Statistical modeling | Lognormal demand, Bernoulli disruption, Gaussian copula dependence |
-| Simulation engineering | Seeded NumPy generators, scrambled Sobol sampling, common random numbers |
-| Honest evaluation | Independent selection/evaluation streams; replicate-level intervals; point-estimate labels for tail risk |
-| Mathematical verification | Hand calculations and a closed-form newsvendor oracle, including a deterministic limit |
-| Data engineering | Strict CSV calibration, SHA-256 provenance, indexed SQLite experiment history, analytical SQL |
-| Product delivery | Responsive dashboard, JSON API, CLI, CSV/JSON exports, validation and useful errors |
-| Reproducibility | Pinned numerical dependencies, version/seed metadata, evidence generation script, CI configuration |
+| Decision summary | Selected order, modeled profit, downside, service, baseline and numerical confidence interval |
+| Observed sales | 104 real weekly observations per SKU, training/validation/test splits and source prices |
+| Historical policy test | Four policies over 39 chronological test weeks, profit/service comparisons and forecast diagnostics |
+| Scenario explorer | 27 combinations of risk preference, cost assumptions and hypothetical supplier stress per product |
+| Decision curve | 106 order candidates, mean/tail profit and the blended objective |
+| Data quality & learning | Sequential cleaning audit, assumptions, attribution and run provenance |
 
-## Reproduce the evidence
+The report includes **12 tables, 25 explicit DAX measures, 135 seeded product-scenario simulations, 14,310 candidate scores and 4,860 histogram bins**. Slicers explore precomputed results; they do not execute Python. To generate fresh simulation values or another method/seed:
+
+```powershell
+python scripts/export_powerbi.py --method sobol --n 4096 --replicates 12 --seed 2026
+# Then click Refresh in Power BI Desktop.
+```
+
+Products, scenarios, time history, policy comparison, distribution inspection and visual CSV exports are interactive in Power BI. New arbitrary economics require a Python run/export followed by Refresh. Local run history is retained in SQLite through the CLI. This is import-mode BI, not a real-time procurement application.
+
+## Real data with a reproducible lineage
+
+Source: **[UCI Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii)**, Chen, D. (2012), [DOI](https://doi.org/10.24432/C5CG6D), **CC BY 4.0**. It contains transactions from a UK non-store retailer in 2009–2011. UCI provides an official download and clear attributed reuse; it is a strong fit for this retail decision problem, not a claim to target every employer.
+
+- **1,067,371 original rows → 892,892 audited UK sale lines.**
+- **5 SKUs ×104 complete weeks =520 derived observations.** Product selection and reference prices use only the initial 52 weeks.
+- **52 training /13 diagnostic validation /39 sequential test weeks.** Four policies produce **780 policy-week records** over 195 product-test weeks.
+- Original ZIP, workbook, derived CSV and Power BI exports have SHA-256 provenance. Customer identifiers are not exported.
+
+Recorded sales are a **demand proxy**. Purchase costs, supplier failures, lost demand and stock availability are not observed. Prices are initial-training medians; cost, salvage, shortage penalties and weekly inventory reset are assumptions. All monetary results are **modeled profit proxies**, not actual profits or proven savings. [Read the data card](docs/DATA_CARD.md).
+
+## Honest results, not a universal winner
+
+Default historical replay uses cost=55% of reference price, salvage=10%, penalty=10%, full delivery, weekly reset and risk weight=.20. Mean weekly profit proxies and fulfilled-observed-unit rates over 39 test weeks:
+
+| SKU | Risk-policy profit | Trailing-mean profit | Risk fill | Mean fill |
+|---|---:|---:|---:|---:|
+| 85123A | £359.35 | £273.41 | 73.8% | 84.6% |
+| 84077 | £29.18 | £28.94 | 52.2% | 71.9% |
+| 21212 | £56.21 | £31.13 | 78.8% | 86.0% |
+| 85099B | £457.64 | £482.67 | 70.1% | 77.3% |
+| 84879 | £236.49 | £228.56 | 66.9% | 76.1% |
+
+The risk-sensitive policy beats trailing-mean modeled profit on four products but loses on jumbo bags, and fulfills fewer units on all five. Report all four policies and discuss the service requirement before recommending an order. Changing assumed costs can change rankings.
+
+The separate default simulation refits on the latest 52 recorded weeks for the archival planning week **2011-12-05**. It selects 476 units against a 658-unit mean baseline, with about £357.53 versus £338.02 modeled mean profit and lower fill. Its paired confidence interval measures numerical integration uncertainty conditional on the empirical model; it is not a future-savings interval and is distinct from the chronological replay.
+
+## Python commands and reproduction
 
 ```bash
+python -m stocklab run --product 85123A
+python -m stocklab backtest
+python -m stocklab data
+# Full rebuild from the official ~46 MB source; optional Excel dependencies:
+python -m pip install -e ".[data,dev]"
+python scripts/prepare_retail.py
 python scripts/reproduce.py
-python -m stocklab calibrate examples/synthetic-demand.csv
-python -m stocklab run --config examples/scenario.json
+python scripts/configure_powerbi.py
+python -m unittest discover -s tests -v
+python scripts/validate_powerbi.py
+# Separate mathematical teaching model:
+python -m stocklab run --synthetic
 ```
 
-The evidence script regenerates the default run, a nine-case sensitivity study, synthetic demand data, and a fixed-policy sampling benchmark. In the no-disruption analytic benchmark, at 4,096 paths over 24 replicates, the observed RMSE was **76.09 for ordinary Monte Carlo and 0.425 for scrambled Sobol**. This is a measured result for this low-dimensional benchmark, not a universal performance claim. See [benchmark.json](examples/benchmark.json).
+Empirical resampling preserves observed zeros and counts. MC and scrambled Sobol use independent selection/evaluation seed branches and paired common random numbers. The historical replay scores empirical policies exactly on preceding observations, avoiding Monte Carlo noise in test policy choice. The synthetic lognormal model and analytic newsvendor benchmark remain explicitly labeled teaching/reference exercises.
 
-For SQL exploration, use a SQLite client with JSON support:
+## Documentation and study material
 
-```bash
-sqlite3 -header -column output/experiments.db < sql/analysis.sql
-```
-
-Optional container:
-
-```bash
-docker build -t stocksense .
-docker run --rm -p 127.0.0.1:8000:8000 stocksense
-```
-
-The built-in HTTP server is for local demonstrations. Public deployment needs authentication, a production gateway, quotas, and operational monitoring. Container and CI configurations are provided; consult [validation](docs/VALIDATION.md) for what was actually executed.
-
-## Explore the project
-
-```text
-stocklab/        Numerical model, experiments, calibration, ledger, CLI, HTTP API
-stocklab/web/    Buildless dashboard and a reproducible saved preview
-tests/          Numerical invariants and integration checks
-examples/       Synthetic data and generated experiment evidence
-notebooks/      An executable journey from simulation basics to model validation
-scripts/        Reproduce experiments and validate the browser interface
-sql/            Experiment analysis using SQL and window functions
-docs/           PRD, FRD, architecture, methodology, study guide, interview kit
-```
-
-| Start here | Purpose |
+| File | Purpose |
 |---|---|
-| [Study guide](docs/STUDY_GUIDE.md) | Basics to advanced, 2-3 sentence analogies, equations, exercises, answer key |
-| [Notebook](notebooks/01_monte_carlo_lab.ipynb) | Run and modify the concepts interactively |
-| [PRD](docs/PRD.md) / [FRD](docs/FRD.md) | Product problem, scope, requirements, acceptance criteria |
-| [Architecture](docs/ARCHITECTURE.md) | Module boundaries, data flow, complexity, engineering trade-offs |
-| [Methodology](docs/METHODOLOGY.md) | Exact definitions, assumptions, statistical limitations |
-| [API and operations](docs/API_AND_RUNBOOK.md) | API contract, local setup, troubleshooting, deployment boundaries |
-| [Interview kit](docs/INTERVIEW_KIT.md) | Demonstration script, defensible resume bullets, questions and answers |
+| [Power BI walkthrough](powerbi/README.md) | Open/refresh, report tour, DAX, model and acceptance checklist |
+| [Study guide](docs/STUDY_GUIDE.md) | 44 lessons, short analogies, exercises, 14-day learning plan |
+| [Notebook](notebooks/01_monte_carlo_lab.ipynb) | Executable real-data and mathematical learning lab |
+| [Data card](docs/DATA_CARD.md) | Dataset choice, license, audit, time split, limits |
+| [Methodology](docs/METHODOLOGY.md) | Equations, uncertainty, policies and evaluation |
+| [Architecture](docs/ARCHITECTURE.md) | Python-to-Power-BI pipeline and component ownership |
+| [Runbook](docs/API_AND_RUNBOOK.md) | Commands, troubleshooting and regeneration |
+| [Interview kit](docs/INTERVIEW_KIT.md) | Defensible resume bullets and technical answers |
+| [PRD](docs/PRD.md) / [FRD](docs/FRD.md) / [Validation](docs/VALIDATION.md) | Scope, contracts and evidence |
 
-## Boundaries and next experiments
-
-The model covers one item and one period, continuous demand and inventory, fixed prices, prepaid orders without shortfall refunds, and known parameters. It does not model seasonality, replenishment timing, parameter uncertainty, censored sales, multi-item budgets, or a real supply chain. A narrow Monte Carlo interval cannot validate those assumptions.
-
-The next meaningful extensions are a censored-demand model, parameter bootstrap, multi-period replenishment, and evaluation against genuine historical decisions. They are roadmap items, not implemented features. See the study guide for how to approach them.
-
-MIT License · Built by [Swapnil Dwivedi](https://github.com/Swapnil-byte-798).
+Code is [MIT](LICENSE). The derived data remain **CC BY 4.0**, separately credited in [stocklab/data/README.md](stocklab/data/README.md). Microsoft JSON schemas are vendored for offline validation with their source URLs; see [schema notice](powerbi/schemas/README.md).

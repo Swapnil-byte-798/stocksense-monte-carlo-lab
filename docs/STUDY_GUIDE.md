@@ -4,9 +4,9 @@
 
 This guide teaches the reasoning behind StockSense, not just the commands. Read a lesson, explain its analogy aloud, run the related code, and answer its checkpoint without looking. Mathematical fluency comes from predicting what should happen before pressing Run.
 
-**Prerequisites:** Python variables, functions, loops, and arrays. No prior Monte Carlo knowledge is required. Currency is illustrative INR; the ideas apply to any consistent units.
+**Prerequisites:** Python variables, functions, loops, and arrays. No prior Monte Carlo knowledge is required. Version 2 uses real UCI weekly sales and GBP. Small mathematical examples and the separate synthetic teaching model use illustrative units/INR, not retailer measurements. Power BI is the main interface; Python handles analytics. No JavaScript, HTML or CSS is needed.
 
-**Learning route:** Foundations (lessons 1-8), model building (9-14), reliable inference (15-21), engineering (22-27), advanced extensions (28-32), then the practical exercises and interview rehearsal. Advanced extensions are learning material unless explicitly identified as implemented.
+**Learning route:** Foundations (lessons 1-8), model building (9-14), reliable inference (15-21), engineering (22-27), advanced extensions (28-32), real-data reasoning (33-38), Power BI (39-44), then the practical exercises and interview rehearsal. Advanced extensions are learning material unless explicitly identified as implemented.
 
 ## Part I - Foundations
 
@@ -100,6 +100,8 @@ The full Q is prepaid. Undelivered stock has no refund in this model. This assum
 
 ### 10. Convert intuitive demand parameters into lognormal parameters
 
+This is the separate `--synthetic` teaching/reference model. The real default resamples weekly observations, including zeros; see lesson 36.
+
 Users think in mean m and CV v. A lognormal generator needs normal-space mu and sigma. Use sigma²=log(1+v²) and mu=log(m)-sigma²/2; then D=exp(mu+sigma Z), Z standard normal.
 
 For m=1,000 and v=.35, sigma is about .340 and mu about 6.850. Passing 1,000 as the generator's log-space mean would be catastrophically wrong. Test the generated sample moments against the requested moments.
@@ -107,6 +109,8 @@ For m=1,000 and v=.35, sigma is about .340 and mu about 6.850. Passing 1,000 as 
 **Analogy:** A recipe may specify tablespoons while your measuring tool uses milliliters. Both describe the same ingredient but require conversion. Mean demand and log-space mean are different measurement systems.
 
 ### 11. Model supply disruption
+
+UCI has no supplier performance measurements. Default real scenarios use no disruption; other values are hypothetical stress assumptions.
 
 A Bernoulli event has two possibilities: disruption or no disruption. If disruption probability is .08, about 8% of generated worlds should be disrupted in a sufficiently large sample. With delivered fraction .65, a 1,000-unit order supplies 650 units in those worlds.
 
@@ -200,7 +204,9 @@ The reference optimum is Q*=F_D^-1((p-c+k)/(p-s+k)) for risk-neutral profit with
 
 ### 22. Calibration and data quality
 
-Calibration estimates distribution parameters from observations. For positive demand, lognormal maximum likelihood uses the mean and population variance of log-demand. Transform them back to demand mean and CV. The CSV importer requires exact headers, valid unique dates, enough rows, and finite positive demand.
+Version 2 audits the original transaction workbook and resamples complete weekly counts including zeros. See the data card and `preparation.py`. Its empirical moments are descriptive.
+
+The separate positive-only CSV command teaches parametric calibration. For positive demand, lognormal maximum likelihood uses the mean and population variance of log-demand. Transform them back to demand mean and CV. The CSV importer requires exact headers, valid unique dates, enough rows, and finite positive demand.
 
 Thirty observations is a basic input rule, not a proof of reliable fit. Seasonality, outliers, changes over time, and censored sales require diagnostics and potentially a different model. Sales are not automatically demand: a stockout hides unmet demand.
 
@@ -230,13 +236,11 @@ Repeated identical configurations are legitimate records, not necessarily data d
 
 **Analogy:** A laboratory notebook records every experiment, even repeated ones. A neat summary table helps you find the experiment; the detailed page explains how it was performed. SQLite supplies both the index and the notebook.
 
-### 26. API and interface contracts
+### 26. Interface and data contracts
 
-The API validates inputs, runs the same engine as the CLI, and returns structured results. The interface should clearly distinguish editable inputs, running status, successful outputs, and errors. A changed input must not silently relabel an old result as current.
+Version 2 replaces the web UI with Power BI. The boundary is twelve typed CSV tables plus an export manifest and native report/model definitions. A stock code identifies a known product; scenario keys identify declared assumption combinations. Unique dimension keys, matching fact types and checked references make this boundary inspectable. CLI validation rejects invalid economics or sampling limits before computing.
 
-StockSense marks pending changes, keeps previous results after errors, and disables simulation when displaying a static saved preview. Unknown routes do not expose arbitrary files. The local server remains a demo, not a production security boundary.
-
-**Analogy:** A restaurant menu states what can be ordered, the kitchen prepares it, and the waiter reports what arrived. If the kitchen rejects a request, the waiter must not invent a meal. A good API and interface preserve the same honest contract.
+**Analogy:** A plug must match the socket's shape and voltage before electricity is useful. Data tables also need matching keys and types. A beautiful report cannot compensate for an incompatible input contract.
 
 ### 27. Tests that provide evidence
 
@@ -288,19 +292,117 @@ Before adding reinforcement learning or complex solvers, define states, actions,
 
 **Analogy:** Packing lunch for one day is a single-period decision. Planning a kitchen for a month requires tracking leftovers, deliveries, expiry, and tomorrow's needs. The problem gains memory, so the model must gain state.
 
+## Part VI - Real data and Power BI
+
+### 33. Sales are a proxy for demand
+
+UCI records bought quantities, not every quantity customers wanted. Stockouts can cap sales; zero weeks can reflect closure or missing availability. StockSense therefore calls profit, fill and unmet quantities sales-proxy outcomes. Add inventory snapshots, stockout flags and trading calendars before claiming true-demand estimates.
+
+**Analogy:** Counting cinema tickets tells you who entered, not who was turned away after a sellout. An empty sales record also cannot tell you whether the cinema was closed. Measurements need the context of what could have been observed.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 34. An audit makes cleaning choices reviewable
+
+The source has 1,067,371 rows. Sequential deduplication/date/cancellation/quantity/price/code/country/boundary filters leave 892,892 positive UK sale lines. Each excluded row is counted once at its first failing stage. Missing customer IDs remain; identical-line deduplication is a declared assumption that may remove legitimate repetitions.
+
+**Analogy:** A water-treatment plant records what each filter removes. Counting the same debris at every filter would inflate the total. A staged audit lets another engineer reproduce and challenge the treatment.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 35. Choose products before seeing the test
+
+SKU ranking and reference prices use only initial 52-week observations. Products require39 active training weeks and CV≤2. Next13 weeks provide diagnostics; final 39 weeks are sequential tests. At each test week, use the preceding 52 observations only; previously revealed test outcomes may enter later rolling windows.
+
+**Analogy:** Choosing race contestants after seeing the finish makes prediction look impressive. Fair evaluation registers contestants before the race. Product selection needs that same registration point.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 36. Empirical resampling keeps zeros and integer counts
+
+Sort the preceding 52 counts, then use zero-based index floor(52U) for uniform U. This preserves recorded support and zero mass. MC and Sobol cover uniform space differently but integrate the same empirical distribution. Resampling assumes exchangeability and cannot infer unseen extremes, trend or seasonality.
+
+**Analogy:** Write each observed week on a card and draw with replacement. A zero card remains in the bag. Drawing more cards reduces numerical noise but cannot invent a kind of week never recorded.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 37. Historical replay differs from numerical precision
+
+Four policies are scored against39 future-revealed weeks per product. Empirical policies choose orders by exact averaging over their prior 52 observations, eliminating simulation selection noise. The final-refit simulation instead uses independent randomized evaluation; its CI describes conditional numerical error, not causal savings or future demand uncertainty.
+
+**Analogy:** Replaying a past match tests a strategy against a recorded sequence. Repeating a randomized calculator checks numerical precision. Neither guarantees winning tomorrow against a changing opponent.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 38. Economics and service decide whether the policy is acceptable
+
+Prices are initial-training medians. Cost55%, salvage 10%, penalty 10%, weekly reset and full delivery are assumptions. The default risk policy beats trailing-mean modeled profit on four products but loses on jumbo bags and lowers fill on all five. A business may require a service constraint; the current risk weight does not guarantee one.
+
+**Analogy:** A van can save fuel by completing fewer deliveries. The fuel bill alone cannot tell you whether customers received their orders. A score must be judged alongside the service promise it should support.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 39. Python computes, Power BI explains
+
+Python owns raw ETL, empirical sampling, order selection, independent evaluation and exports. Power BI imports the resulting CSVs and presents native visuals. Slicers select precomputed scenarios; they never execute Python. Generate fresh values with the exporter and click Refresh.
+
+**Analogy:** A kitchen cooks the meals; a menu helps diners choose among them. Changing your selection does not cook a new recipe. A new recipe must return to the kitchen before it appears on the menu.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 40. A star model separates labels from measurements
+
+Products, Weeks and Scenarios are dimensions with unique keys. Sales, simulation, replay, curves and histograms are facts at different grains. Single-direction dimension-to-fact relationships prevent accidental fact-to-fact ambiguity. Never join alternative scenarios into one imagined company outcome.
+
+**Analogy:** A library catalogue names books while checkout records describe events. Keeping names separate from events avoids repeating or confusing them. A unique catalogue key lets every record find the right description.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 41. Power Query imports explicit types
+
+M reads each CSV, promotes headers and assigns declared types using en-GB conversion. DataFolder is a local parameter set after cloning. Refresh imports prepared data, not fresh randomness. Wrong paths, locale or types can break a report even when the Python calculations are correct.
+
+**Analogy:** A loading dock checks both the address and the labels on arriving boxes. A number delivered as text cannot be handled like a measured quantity. Typed imports are that receiving inspection.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 42. DAX measures depend on filter context
+
+A measure recalculates for the selected product/scenario/week. Replay fill is DIVIDE(SUM(fulfilled),SUM(observed_sales)), not an average of weekly percentages. Simulation measures require one compatible decision context; defaults apply only when dimensions are unfiltered, while ambiguous multi-selection returns blank.
+
+**Analogy:** A restaurant bill depends on the table whose orders you selected. Summing two alternative menus is not one customer bill. Filter context determines which measurements belong in the calculation.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 43. Scenario slicers are alternatives, not extra evidence
+
+The report bundles 27 assumptions per product: three cost fractions, three risk weights and three hypothetical supplier failure rates. These are 135 seeded model runs over the same five histories, not 135 independently observed retailers. Comparing scenarios shows sensitivity; it does not identify which assumption is true.
+
+**Analogy:** Trying several pairs of tinted glasses changes how the same scene looks. It does not create several different landscapes. Scenario analysis changes assumptions around the same underlying evidence.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
+### 44. Validate the model and the report at different layers
+
+Python tests verify accounting, chronology, reproducibility and data grains. Official JSON schemas verify report-file syntax and reference checks catch missing fields. Power BI Desktop must still execute M/DAX, refresh sources and render every visual. Record that Windows acceptance result before claiming the live report is tested.
+
+**Analogy:** A building blueprint can pass a drawing review while construction still needs inspection. A correct invoice does not prove the delivered machine runs. Each validation layer checks a different failure mode.
+
+**Checkpoint:** Explain this lesson using one concrete table, command or result from StockSense.
+
 ## Guided practical exercises
 
 ### Exercise A: predict the deterministic result
 
-Set demand CV=0, disruption probability=0, risk weight=0, and mean demand=1,000. Keep the default economics and ensure the grid includes 1,000. Before running, predict the best order and profit.
+Create a JSON file using `python -m stocklab defaults --synthetic`; set demand_cv=0, disruption_probability=0, risk_weight=0, demand_mean=1000. Run `python -m stocklab run --synthetic --config your-scenario.json`. This teaching exercise retains price 50/cost 28/salvage 8/penalty 5 and a grid containing 1000. Predict the best order and profit first.
 
 **Answer:** Q=1,000 and profit=(50-28)×1,000=22,000. There are no leftovers or shortages. A larger Q loses 20 per unused unit; a smaller Q gives up 27 per missing unit including shortage penalty.
 
 ### Exercise B: explain the default policy
 
-Read `examples/default-run.json`. Why does the selected quantity have lower mean profit than the baseline? Does this mean the optimizer failed?
+Read `examples/default-run.json`. Identify the real data context and compare the selected quantity with its baseline. Does it improve both profit and service?
 
-**Answer:** The objective blends mean and lower-tail profit. The 975-unit order gives up approximately 18.43 of expected profit while improving worst-5% average profit by approximately 202.59. At w=.2 this raises the weighted score. It reduces fill rate, so the trade-off must be accepted rather than hidden.
+**Answer:** The final-refit UCI simulation selects 476 units versus 658. Modeled mean profit improves by about£19.51 and worst-5% average profit by about£241.61, while fill drops from 72.5% to 61.0%. The objective does not enforce a service constraint. This conditional resampling experiment is separate from the 39-week historical replay and does not demonstrate actual savings.
 
 ### Exercise C: distinguish three uncertainties
 
@@ -328,9 +430,9 @@ Run `python scripts/reproduce.py`. Compare RMSE for MC and Sobol at equal N. Wha
 
 ### Exercise G: introduce realistic data carefully
 
-List checks needed before fitting lognormal demand to real sales.
+Inspect the data card and empirical weekly panel. Why retain zero-sales weeks rather than delete them to fit a positive-only lognormal model?
 
-**Answer:** Separate true demand from censored sales; check zeros, missing periods, returns, duplicate dates, seasonality, promotion effects, trend, outliers, structural changes, and whether units and aggregation periods are consistent. Use out-of-time validation and compare alternative distributions.
+**Answer:** Deleting zeros changes the observed distribution. Zero sales may mean no stock, no trading, no records or no demand; investigate rather than silently remove them. Audit duplicates, returns, dates, prices, codes and aggregation boundaries; distinguish observed sales from censored demand. Empirical resampling preserves recorded support but cannot recover unobserved lost demand.
 
 ## A 14-day learning plan
 
@@ -344,11 +446,11 @@ List checks needed before fitting lognormal demand to real sales.
 | 6 | Lessons 15-17 | Explain standard error and confidence interval limitations |
 | 7 | Lessons 18-20 | Demonstrate paired comparisons and held-out evaluation |
 | 8 | Lesson 21 | Derive the no-disruption critical fractile |
-| 9 | Lessons 22-24 | Fit the synthetic CSV and inspect provenance |
+| 9 | Lessons 22-24 | Audit real ETL, source hashes and weekly sales |
 | 10 | Lessons 25-27 | Query SQLite and explain three independent tests |
-| 11 | Lessons 28-29 | Sketch bootstrap and importance-sampling extensions |
-| 12 | Lessons 30-32 | Distinguish direct MC, variance reduction, and MCMC |
-| 13 | Exercises A-G | Make one reviewed model change with a new test |
+| 11 | Lessons 28-29,33-36 | Sketch bootstrap and importance-sampling extensions |
+| 12 | Lessons30-32,37-38 | Compare numerical precision, replay and service |
+| 13 | Lessons39-44, exercisesA-G | Refresh Power BI, explain relationships/DAX and export one visual |
 | 14 | Interview kit | Record a five-minute demo and answer limitations honestly |
 
 ## Compact glossary
@@ -371,6 +473,9 @@ List checks needed before fitting lognormal demand to real sales.
 | Validation | Checking the model against the real problem |
 
 ## Primary references and further reading
+
+- Chen, D. (2012). [UCI Online Retail II](https://doi.org/10.24432/C5CG6D), CC BY4.0; StockSense filters/aggregates the source.
+- [Microsoft Power BI projects](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-overview), [report format](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-report), and [semantic model](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset).
 
 - [MIT OpenCourseWare: Newsvendor Inventory Problem](https://ocw.mit.edu/courses/15-772j-d-lab-supply-chains-fall-2014/6952be57b43aa185119c6f114908bcc5_MIT15_772JF14_Newsboy.pdf) - underlying inventory problem.
 - [SciPy: scrambled Sobol engine](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.Sobol.html) - sequence properties and implementation contract.

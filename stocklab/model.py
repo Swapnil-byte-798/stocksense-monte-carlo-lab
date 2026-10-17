@@ -28,13 +28,19 @@ class Scenario:
 
     def __post_init__(self):
         for key, value in asdict(self).items():
-            if isinstance(value, bool) or not isinstance(value, numbers.Real) or not math.isfinite(value):
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, numbers.Real)
+                or not math.isfinite(value)
+            ):
                 raise ValueError(f"{key} must be a finite number")
         for key in ("order_min", "order_max", "order_step", "baseline_order"):
             if not isinstance(getattr(self, key), numbers.Integral):
                 raise ValueError(f"{key} must be an integer")
         if not 1 <= self.demand_mean <= 1e6 or not 0 <= self.demand_cv <= 2:
-            raise ValueError("demand_mean must be in [1, 1000000] and demand_cv in [0, 2]")
+            raise ValueError(
+                "demand_mean must be in [1, 1000000] and demand_cv in [0, 2]"
+            )
         if not 0 <= self.salvage < self.cost < self.price <= 1e6:
             raise ValueError("require 0 <= salvage < cost < price <= 1000000")
         if not 0 <= self.shortage_penalty <= 1e6:
@@ -68,21 +74,44 @@ def uniforms(n: int, method: str, seed: int) -> np.ndarray:
     elif method == "sobol":
         if n & (n - 1):
             raise ValueError("Sobol sample count must be a power of two")
-        values = qmc.Sobol(d=2, scramble=True, rng=np.random.default_rng(seed)).random_base2(int(math.log2(n)))
+        values = qmc.Sobol(
+            d=2, scramble=True, rng=np.random.default_rng(seed)
+        ).random_base2(int(math.log2(n)))
     else:
         raise ValueError("method must be mc or sobol")
     # Avoid infinite inverse-normal values at endpoints; do not discard Sobol points.
     return np.clip(values, np.finfo(float).eps, 1 - np.finfo(float).eps)
 
 
-def worlds(scenario: Scenario, u: np.ndarray):
+def validate_history(values):
+    data = np.asarray(values, dtype=float)
+    if (
+        data.ndim != 1
+        or not 8 <= data.size <= 10000
+        or not np.all(np.isfinite(data))
+        or np.any(data < 0)
+        or data.mean() <= 0
+    ):
+        raise ValueError(
+            "history must contain 8..10000 finite nonnegative observations with positive mean"
+        )
+    return data
+
+
+def worlds(scenario: Scenario, u: np.ndarray, demand_history=None):
     """Gaussian copula: positive rho couples high demand to supply disruption."""
     z = norm.ppf(u)
-    sigma = math.sqrt(math.log1p(scenario.demand_cv ** 2))
-    mu = math.log(scenario.demand_mean) - sigma ** 2 / 2
-    demand = np.exp(mu + sigma * z[:, 0])
+    sigma = math.sqrt(math.log1p(scenario.demand_cv**2))
+    mu = math.log(scenario.demand_mean) - sigma**2 / 2
+    if demand_history is None:
+        demand = np.exp(mu + sigma * z[:, 0])
+    else:
+        history = np.sort(validate_history(demand_history))
+        demand = history[
+            np.minimum((u[:, 0] * len(history)).astype(int), len(history) - 1)
+        ]
     rho = scenario.demand_supply_correlation
-    supply_z = rho * z[:, 0] + math.sqrt(1 - rho ** 2) * z[:, 1]
+    supply_z = rho * z[:, 0] + math.sqrt(1 - rho**2) * z[:, 1]
     disrupted = supply_z > norm.ppf(1 - scenario.disruption_probability)
     fill = np.where(disrupted, scenario.disrupted_fill, 1.0)
     return demand, fill
@@ -94,7 +123,12 @@ def outcomes(scenario: Scenario, order: float, demand: np.ndarray, fill: np.ndar
     sold = np.minimum(demand, available)
     left = np.maximum(available - demand, 0)
     unmet = np.maximum(demand - available, 0)
-    profit = scenario.price * sold + scenario.salvage * left - scenario.cost * order - scenario.shortage_penalty * unmet
+    profit = (
+        scenario.price * sold
+        + scenario.salvage * left
+        - scenario.cost * order
+        - scenario.shortage_penalty * unmet
+    )
     return profit, sold, unmet
 
 
@@ -116,8 +150,10 @@ def summarize(scenario: Scenario, order: float, demand: np.ndarray, fill: np.nda
     mean = float(profit.mean())
     tail = lower_tail_mean(profit, scenario.tail_probability)
     return {
-        "order": int(order), "mean_profit": mean,
-        "tail_profit": tail, "loss_probability": float(np.mean(profit < 0)),
+        "order": int(order),
+        "mean_profit": mean,
+        "tail_profit": tail,
+        "loss_probability": float(np.mean(profit < 0)),
         "fill_rate": float(sold.sum() / demand.sum()),
         "stockout_probability": float(np.mean(unmet > 0)),
         "profit_p05": float(np.quantile(profit, 0.05)),
@@ -130,25 +166,34 @@ def analytic_expected_profit(scenario: Scenario, order: float) -> float:
     """Independent analytic oracle for the no-disruption lognormal model."""
     if scenario.disruption_probability != 0:
         raise ValueError("analytic oracle requires zero disruption probability")
-    sigma = math.sqrt(math.log1p(scenario.demand_cv ** 2))
+    sigma = math.sqrt(math.log1p(scenario.demand_cv**2))
     if sigma == 0:
-        return float(outcomes(scenario, order, np.array([scenario.demand_mean]), np.ones(1))[0][0])
-    mu = math.log(scenario.demand_mean) - sigma ** 2 / 2
+        return float(
+            outcomes(scenario, order, np.array([scenario.demand_mean]), np.ones(1))[0][
+                0
+            ]
+        )
+    mu = math.log(scenario.demand_mean) - sigma**2 / 2
     if order == 0:
         expected_sales = 0.0
     else:
         z = (math.log(order) - mu) / sigma
         expected_sales = scenario.demand_mean * norm.cdf(z - sigma) + order * norm.sf(z)
-    return float((scenario.price - scenario.salvage + scenario.shortage_penalty) * expected_sales
-                 + (scenario.salvage - scenario.cost) * order - scenario.shortage_penalty * scenario.demand_mean)
+    return float(
+        (scenario.price - scenario.salvage + scenario.shortage_penalty) * expected_sales
+        + (scenario.salvage - scenario.cost) * order
+        - scenario.shortage_penalty * scenario.demand_mean
+    )
 
 
 def analytic_order(scenario: Scenario) -> float:
     if scenario.disruption_probability != 0 or scenario.risk_weight != 0:
         raise ValueError("closed-form optimum requires no disruption and risk_weight=0")
-    fractile = (scenario.price - scenario.cost + scenario.shortage_penalty) / (scenario.price - scenario.salvage + scenario.shortage_penalty)
-    sigma = math.sqrt(math.log1p(scenario.demand_cv ** 2))
+    fractile = (scenario.price - scenario.cost + scenario.shortage_penalty) / (
+        scenario.price - scenario.salvage + scenario.shortage_penalty
+    )
+    sigma = math.sqrt(math.log1p(scenario.demand_cv**2))
     if sigma == 0:
         return scenario.demand_mean
-    scale = scenario.demand_mean / math.sqrt(1 + scenario.demand_cv ** 2)
+    scale = scenario.demand_mean / math.sqrt(1 + scenario.demand_cv**2)
     return float(lognorm.ppf(fractile, s=sigma, scale=scale))

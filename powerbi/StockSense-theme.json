@@ -1,0 +1,31 @@
+{
+  "name": "StockSense · Evergreen",
+  "dataColors": [
+    "#087F73",
+    "#E4A648",
+    "#577DA3",
+    "#A8798C",
+    "#789565",
+    "#C36C52"
+  ],
+  "background": "#F3F6F2",
+  "foreground": "#173E39",
+  "tableAccent": "#087F73",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI",
+      "fontSize": 14,
+      "color": "#173E39"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 11,
+      "color": "#526C64"
+    },
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 30,
+      "color": "#087F73"
+    }
+  }
+}

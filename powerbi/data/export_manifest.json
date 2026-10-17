@@ -1,0 +1,186 @@
+{
+  "dataset": "UCI Online Retail II",
+  "derived_sha256": "f661b2d38b5a231a5ee99c6def06f89d997722360b18212a1ac42e25194df7ee",
+  "method": "sobol",
+  "seed": 2026,
+  "selection_worlds": 4096,
+  "evaluation_worlds": 49152,
+  "replicates": 12,
+  "scenario_count": 27,
+  "product_scenario_count": 135,
+  "default_scenario": "R20-C55-S0",
+  "table_rows": {
+    "Products": 5,
+    "Weeks": 104,
+    "WeeklySales": 520,
+    "Scenarios": 27,
+    "SimulationSummary": 135,
+    "PolicyCurve": 14310,
+    "ProfitHistogram": 4860,
+    "ReplaySummary": 20,
+    "ReplayWeekly": 780,
+    "ForecastDiagnostics": 20,
+    "CleaningAudit": 9,
+    "ModelNotes": 8
+  },
+  "schema": {
+    "Products": {
+      "stock_code": "string",
+      "description": "string",
+      "training_units": "int64",
+      "training_active_weeks": "int64",
+      "reference_price_gbp": "double",
+      "product_label": "string"
+    },
+    "Weeks": {
+      "week_start": "dateTime",
+      "week_index": "int64",
+      "split": "string",
+      "year": "int64"
+    },
+    "WeeklySales": {
+      "stock_code": "string",
+      "week_start": "dateTime",
+      "units": "int64"
+    },
+    "Scenarios": {
+      "scenario_key": "string",
+      "scenario_label": "string",
+      "risk_weight": "int64",
+      "cost_fraction": "double",
+      "disruption_probability": "int64"
+    },
+    "SimulationSummary": {
+      "stock_code": "string",
+      "scenario_key": "string",
+      "config_id": "string",
+      "selected_order": "int64",
+      "baseline_order": "int64",
+      "mean_profit_proxy_gbp": "double",
+      "baseline_profit_proxy_gbp": "double",
+      "tail_profit_proxy_gbp": "double",
+      "baseline_tail_profit_proxy_gbp": "double",
+      "fill_rate_proxy": "double",
+      "baseline_fill_rate_proxy": "double",
+      "loss_probability": "double",
+      "stockout_probability_proxy": "double",
+      "paired_delta_gbp": "double",
+      "paired_ci_low_gbp": "double",
+      "paired_ci_high_gbp": "double",
+      "mean_ci_low_gbp": "double",
+      "mean_ci_high_gbp": "double",
+      "method": "string",
+      "seed": "int64",
+      "selection_worlds": "int64",
+      "evaluation_worlds": "int64",
+      "replicates": "int64",
+      "history_sha256": "string"
+    },
+    "PolicyCurve": {
+      "stock_code": "string",
+      "scenario_key": "string",
+      "order": "int64",
+      "mean_profit_proxy_gbp": "double",
+      "tail_profit_proxy_gbp": "double",
+      "score_gbp": "double",
+      "fill_rate_proxy": "double"
+    },
+    "ProfitHistogram": {
+      "stock_code": "string",
+      "scenario_key": "string",
+      "bin_index": "int64",
+      "bin_low_gbp": "double",
+      "bin_mid_gbp": "double",
+      "bin_high_gbp": "double",
+      "worlds": "int64"
+    },
+    "ReplaySummary": {
+      "stock_code": "string",
+      "policy": "string",
+      "weeks": "int64",
+      "mean_profit_proxy_gbp": "double",
+      "total_profit_proxy_gbp": "double",
+      "worst_5pct_profit_proxy_gbp": "double",
+      "fill_rate_proxy": "double",
+      "stockout_probability_proxy": "double"
+    },
+    "ReplayWeekly": {
+      "stock_code": "string",
+      "week_start": "dateTime",
+      "training_last_week": "dateTime",
+      "policy": "string",
+      "order": "int64",
+      "observed_sales": "int64",
+      "profit_proxy_gbp": "double",
+      "fulfilled_units": "double",
+      "unmet_proxy_units": "double"
+    },
+    "ForecastDiagnostics": {
+      "stock_code": "string",
+      "split": "string",
+      "policy": "string",
+      "mae_units": "double",
+      "wape": "double"
+    },
+    "CleaningAudit": {
+      "stage": "string",
+      "rows": "int64",
+      "removed": "int64"
+    },
+    "ModelNotes": {
+      "topic": "string",
+      "explanation": "string"
+    }
+  },
+  "files": {
+    "CleaningAudit.csv": {
+      "sha256": "850d0c52ba8062a95ad3b2336390b613fbe0be7af95244203bd43d305f25656d",
+      "bytes": 317
+    },
+    "ForecastDiagnostics.csv": {
+      "sha256": "024cdc596a20f4996e4eceeb7210647c68480380a1b18eef388e35b3a46f3c11",
+      "bytes": 1372
+    },
+    "ModelNotes.csv": {
+      "sha256": "dea1b41e5f00dfe84cb5f7a8423d448bcc0517e9ad74d9bfdf13ca93b1070f33",
+      "bytes": 1014
+    },
+    "PolicyCurve.csv": {
+      "sha256": "9d37fbaf12792819f3c2f3e7b2f808900cc9dec75e57c50f39e1834682db2c7d",
+      "bytes": 1421183
+    },
+    "Products.csv": {
+      "sha256": "d2dc3bc0860033f55ef8f0d9e4f27196b5c1a72be6ccd93f2bf2b952b132955c",
+      "bytes": 556
+    },
+    "ProfitHistogram.csv": {
+      "sha256": "feed2268b90efd7612020efa1b2877b2723e132720cd56f6b6938e92f76918f5",
+      "bytes": 386120
+    },
+    "ReplaySummary.csv": {
+      "sha256": "5211b0e61efc9115bd3db238fa588dba2662e181859faa73bd508cbb04a58359",
+      "bytes": 2476
+    },
+    "ReplayWeekly.csv": {
+      "sha256": "50a785bf3bc7681aee5945ebda6257e431dedca476af987b72d19c16c59c2489",
+      "bytes": 62325
+    },
+    "Scenarios.csv": {
+      "sha256": "645ec918d008a2d076ae54fb200267f87dcd6752527342bfeef585abe6b507bd",
+      "bytes": 1797
+    },
+    "SimulationSummary.csv": {
+      "sha256": "57332cf3996dfe8311f9b279ef0b68170dbdb9aa9e54f78ad16f34259c2fdead",
+      "bytes": 51243
+    },
+    "WeeklySales.csv": {
+      "sha256": "7eef38c7804af4a733af9b42f8a1b7ff11e01568d741251bda07fd5dc6d1b5b4",
+      "bytes": 11762
+    },
+    "Weeks.csv": {
+      "sha256": "092adcc6f4ba903bc63eb7d2439f5b1b63aae7ac93ac4eb4163755e9eedb3d29",
+      "bytes": 2916
+    }
+  },
+  "warning": "Import report. Slicers do not execute Python. Profit is an assumption-based proxy."
+}

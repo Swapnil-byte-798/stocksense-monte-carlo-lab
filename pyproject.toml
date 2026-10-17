@@ -4,13 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stocksense-lab"
-version = "1.0.0"
+version = "2.0.0"
 description = "Reproducible inventory decisions under uncertainty with Monte Carlo and randomized Sobol sampling"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{name = "Swapnil Dwivedi"}]
 dependencies = ["numpy==2.3.5", "scipy==1.17.0"]
+
+[project.optional-dependencies]
+data = ["pandas==2.2.3", "openpyxl==3.1.5"]
+
+dev = ["jsonschema==4.25.1"]
 
 [project.scripts]
 stocksense = "stocklab.cli:main"
@@ -19,4 +24,4 @@ stocksense = "stocklab.cli:main"
 include = ["stocklab*"]
 
 [tool.setuptools.package-data]
-stocklab = ["web/*"]
+stocklab = ["data/*.json", "data/*.csv", "data/*.md"]

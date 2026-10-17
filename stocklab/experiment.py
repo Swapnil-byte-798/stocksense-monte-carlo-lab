@@ -24,20 +24,64 @@ def interval(values):
     center = float(a.mean())
     se = float(a.std(ddof=1) / np.sqrt(len(a)))
     width = float(t.ppf(0.975, len(a) - 1) * se)
-    return {"estimate": center, "standard_error": se, "low": center - width, "high": center + width}
+    return {
+        "estimate": center,
+        "standard_error": se,
+        "low": center - width,
+        "high": center + width,
+    }
 
 
-def run(scenario=None, *, n=4096, replicates=12, seed=2026, method="sobol"):
+def run(
+    scenario=None,
+    *,
+    n=4096,
+    replicates=12,
+    seed=2026,
+    method="sobol",
+    demand_history=None,
+    data_context=None,
+):
     s = scenario or Scenario()
-    for name, value, low, high in (("n", n, 256, 16384), ("replicates", replicates, 4, 32), ("seed", seed, 0, 2**32 - 1)):
-        if isinstance(value, bool) or not isinstance(value, numbers.Integral) or not low <= value <= high:
+    for name, value, low, high in (
+        ("n", n, 256, 16384),
+        ("replicates", replicates, 4, 32),
+        ("seed", seed, 0, 2**32 - 1),
+    ):
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, numbers.Integral)
+            or not low <= value <= high
+        ):
             raise ValueError(f"{name} must be an integer in [{low}, {high}]")
     started = time.perf_counter()
-    config = {"scenario": asdict(s), "n": int(n), "replicates": int(replicates), "seed": int(seed), "method": method}
+    config = {
+        "scenario": asdict(s),
+        "n": int(n),
+        "replicates": int(replicates),
+        "seed": int(seed),
+        "method": method,
+        "demand_model": (
+            "empirical_weekly_sales"
+            if demand_history is not None
+            else "synthetic_lognormal"
+        ),
+        "data_context": data_context
+        or {"source": "synthetic teaching model", "currency": "INR"},
+    }
+    if demand_history is not None:
+        from .model import validate_history
+
+        demand_history = validate_history(demand_history)
+        config["history_sha256"] = hashlib.sha256(
+            json.dumps(demand_history.tolist()).encode()
+        ).hexdigest()
     # Streams 0 and 1 have disjoint SeedSequence children; evaluation never selects Q.
     train_root, eval_root = np.random.SeedSequence(seed).spawn(2)
     train_seed = int(train_root.generate_state(1)[0])
-    train_demand, train_fill = worlds(s, uniforms(n, method, train_seed))
+    train_demand, train_fill = worlds(
+        s, uniforms(n, method, train_seed), demand_history
+    )
     frontier = [summarize(s, q, train_demand, train_fill) for q in s.orders]
     winner = max(frontier, key=lambda row: row["score"])
     order = winner["order"]
@@ -46,7 +90,7 @@ def run(scenario=None, *, n=4096, replicates=12, seed=2026, method="sobol"):
     for child in eval_root.spawn(replicates):
         child_seed = int(child.generate_state(1)[0])
         replicate_seeds.append(child_seed)
-        demand, fill = worlds(s, uniforms(n, method, child_seed))
+        demand, fill = worlds(s, uniforms(n, method, child_seed), demand_history)
         selected = outcomes(s, order, demand, fill)[0]
         baseline = outcomes(s, s.baseline_order, demand, fill)[0]
         means.append(float(selected.mean()))
@@ -64,16 +108,36 @@ def run(scenario=None, *, n=4096, replicates=12, seed=2026, method="sobol"):
         "Synthetic, single-period model; results are conditional on assumptions, not real-world savings.",
         "Mean confidence intervals measure simulation error only; tail and service metrics are point estimates.",
     ]
+    if demand_history is not None:
+        warnings[0] = (
+            "Historical sales are resampled; costs and supply stress are assumptions, not realized business savings."
+        )
+        warnings.append(
+            "Sales can be censored; empirical resampling does not model seasonality or unseen extremes."
+        )
     if order in (int(s.orders[0]), int(s.orders[-1])):
-        warnings.append("Selected order is at a grid boundary: expand the search before making a decision.")
+        warnings.append(
+            "Selected order is at a grid boundary: expand the search before making a decision."
+        )
     return {
-        "schema_version": 1,
-        "config_id": hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()[:16],
+        "schema_version": 2,
+        "config_id": hashlib.sha256(
+            json.dumps(config, sort_keys=True).encode()
+        ).hexdigest()[:16],
         "created_at": datetime.now(timezone.utc).isoformat(),
         "config": config,
-        "provenance": {"version": __version__, "python": platform.python_version(), "numpy": np.__version__, "scipy": scipy.__version__, "train_seed": train_seed, "evaluation_seeds": replicate_seeds},
-        "selected": chosen, "baseline": baseline,
-        "mean_profit_ci95": interval(means), "paired_delta_ci95": interval(deltas),
+        "provenance": {
+            "version": __version__,
+            "python": platform.python_version(),
+            "numpy": np.__version__,
+            "scipy": scipy.__version__,
+            "train_seed": train_seed,
+            "evaluation_seeds": replicate_seeds,
+        },
+        "selected": chosen,
+        "baseline": baseline,
+        "mean_profit_ci95": interval(means),
+        "paired_delta_ci95": interval(deltas),
         "frontier": frontier,
         "histogram": {"counts": counts.tolist(), "edges": edges.tolist()},
         "replicate_mean_profits": means,
