@@ -173,7 +173,7 @@
           },
           {
             "name": "risk_weight",
-            "dataType": "int64",
+            "dataType": "double",
             "sourceColumn": "risk_weight",
             "summarizeBy": "sum"
           },
@@ -186,7 +186,7 @@
           },
           {
             "name": "disruption_probability",
-            "dataType": "int64",
+            "dataType": "double",
             "sourceColumn": "disruption_probability",
             "summarizeBy": "sum",
             "formatString": "0.0%"
@@ -202,7 +202,7 @@
                 "let",
                 "    Source = Csv.Document(File.Contents(DataFolder & \"\\Scenarios.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
                 "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
-                "    Typed = Table.TransformColumnTypes(Headers, {{\"scenario_key\", type text}, {\"scenario_label\", type text}, {\"risk_weight\", Int64.Type}, {\"cost_fraction\", type number}, {\"disruption_probability\", Int64.Type}}, \"en-GB\")",
+                "    Typed = Table.TransformColumnTypes(Headers, {{\"scenario_key\", type text}, {\"scenario_label\", type text}, {\"risk_weight\", type number}, {\"cost_fraction\", type number}, {\"disruption_probability\", type number}}, \"en-GB\")",
                 "in",
                 "    Typed"
               ]

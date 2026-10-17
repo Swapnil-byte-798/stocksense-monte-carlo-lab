@@ -55,6 +55,12 @@ def validate():
             assert reader.fieldnames == list(types), name
             tables[name] = list(reader)
         assert len(tables[name]) == manifest["table_rows"][name], name
+        for col, kind in types.items():
+            if kind == "int64":
+                assert all(float(row[col]).is_integer() for row in tables[name]), f"{name}.{col}: fractional value in integer column"
+            elif kind == "double":
+                import math
+                assert all(math.isfinite(float(row[col])) for row in tables[name]), f"{name}.{col}: nonfinite value"
     model = json.loads((P / "StockSense.SemanticModel/model.bim").read_text())["model"]
     columns = {t["name"]: {c["name"] for c in t["columns"]} for t in model["tables"]}
     measures = {

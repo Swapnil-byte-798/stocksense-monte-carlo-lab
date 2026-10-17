@@ -46,9 +46,9 @@
     "Scenarios": {
       "scenario_key": "string",
       "scenario_label": "string",
-      "risk_weight": "int64",
+      "risk_weight": "double",
       "cost_fraction": "double",
-      "disruption_probability": "int64"
+      "disruption_probability": "double"
     },
     "SimulationSummary": {
       "stock_code": "string",
@@ -134,52 +134,52 @@
   },
   "files": {
     "CleaningAudit.csv": {
-      "sha256": "850d0c52ba8062a95ad3b2336390b613fbe0be7af95244203bd43d305f25656d",
-      "bytes": 317
+      "sha256": "1cd6be80dd9b1e7a485c5f1c3ab4f1c6d905b55032927fe01cee1a395972c9af",
+      "bytes": 307
     },
     "ForecastDiagnostics.csv": {
-      "sha256": "024cdc596a20f4996e4eceeb7210647c68480380a1b18eef388e35b3a46f3c11",
-      "bytes": 1372
+      "sha256": "583204640cf32d679136204649a9f29432c53d9991e274bfb98db8157e982e69",
+      "bytes": 1351
     },
     "ModelNotes.csv": {
-      "sha256": "dea1b41e5f00dfe84cb5f7a8423d448bcc0517e9ad74d9bfdf13ca93b1070f33",
-      "bytes": 1014
+      "sha256": "2fdc7673e0944221cb5e1cf831e562354fbf0c1de94434fbda9353a02e3eca67",
+      "bytes": 1005
     },
     "PolicyCurve.csv": {
-      "sha256": "9d37fbaf12792819f3c2f3e7b2f808900cc9dec75e57c50f39e1834682db2c7d",
-      "bytes": 1421183
+      "sha256": "6665fba0974e839472e985bb281222679e98d9efda0b27c2ded22ce680b018f8",
+      "bytes": 1406872
     },
     "Products.csv": {
-      "sha256": "d2dc3bc0860033f55ef8f0d9e4f27196b5c1a72be6ccd93f2bf2b952b132955c",
-      "bytes": 556
+      "sha256": "63969f382d93e32741beefb12ce9643261cce2f4d9ae3a3d6dc73227d43bf083",
+      "bytes": 550
     },
     "ProfitHistogram.csv": {
-      "sha256": "feed2268b90efd7612020efa1b2877b2723e132720cd56f6b6938e92f76918f5",
-      "bytes": 386120
+      "sha256": "97854d3ef1f95b999e7ac389e648b1d19c61fac16fefe5fa305ec4a248a04d10",
+      "bytes": 381259
     },
     "ReplaySummary.csv": {
-      "sha256": "5211b0e61efc9115bd3db238fa588dba2662e181859faa73bd508cbb04a58359",
-      "bytes": 2476
+      "sha256": "301ace13e000db01daf830eb42e3b6b88acde53ee888c56ac2012ba2bd403b6f",
+      "bytes": 2455
     },
     "ReplayWeekly.csv": {
-      "sha256": "50a785bf3bc7681aee5945ebda6257e431dedca476af987b72d19c16c59c2489",
-      "bytes": 62325
+      "sha256": "160aee40157c49f59ae054f6e521d705b92b780b781a9a448498ef4512543084",
+      "bytes": 61544
     },
     "Scenarios.csv": {
-      "sha256": "645ec918d008a2d076ae54fb200267f87dcd6752527342bfeef585abe6b507bd",
-      "bytes": 1797
+      "sha256": "daa210919168d17a76b379df0cb5425d50f870f36a696a114df46885275627e4",
+      "bytes": 1769
     },
     "SimulationSummary.csv": {
-      "sha256": "57332cf3996dfe8311f9b279ef0b68170dbdb9aa9e54f78ad16f34259c2fdead",
-      "bytes": 51243
+      "sha256": "634c11b7b57c3daadc398b9bf9c332f1fb774845e39e6aae582c61a8bfbad7dc",
+      "bytes": 51107
     },
     "WeeklySales.csv": {
-      "sha256": "7eef38c7804af4a733af9b42f8a1b7ff11e01568d741251bda07fd5dc6d1b5b4",
-      "bytes": 11762
+      "sha256": "f661b2d38b5a231a5ee99c6def06f89d997722360b18212a1ac42e25194df7ee",
+      "bytes": 11241
     },
     "Weeks.csv": {
-      "sha256": "092adcc6f4ba903bc63eb7d2439f5b1b63aae7ac93ac4eb4163755e9eedb3d29",
-      "bytes": 2916
+      "sha256": "779fccb0bace2f8a53a18dc2bcb48e83da18ba5e2b3f6ebf026d88ef940db2de",
+      "bytes": 2811
     }
   },
   "warning": "Import report. Slicers do not execute Python. Profit is an assumption-based proxy."

@@ -23,7 +23,7 @@ SCENARIO_GRID = {
 
 def write_csv(path, rows):
     with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -234,7 +234,7 @@ def export(destination, n=4096, replicates=12, method="sobol", seed=2026):
                 if col in ("week_start", "training_last_week")
                 else (
                     "int64"
-                    if isinstance(value, int)
+                    if isinstance(value, int) and not any(isinstance(row[col], float) for row in data)
                     else "double" if isinstance(value, float) else "string"
                 )
             )

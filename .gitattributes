@@ -1,0 +1,2 @@
+# Checksummed CSVs and generated project text must have identical bytes on Windows/Linux.
+* text=auto eol=lf
