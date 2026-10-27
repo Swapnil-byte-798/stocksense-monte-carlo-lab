@@ -70,6 +70,17 @@ The separate default simulation refits on the latest 52 recorded weeks for the a
 
 ## Python commands and reproduction
 
+### Paired policy uncertainty
+
+`python -m stocklab compare-policies` adds a paired weekly block-bootstrap comparison of
+the risk policy with trailing mean on the existing real-sales replay. Across five products
+and 39 common weeks, the mean weekly modeled profit difference is **+£94.18**, with a
+four-week-block 95% interval **[−£20.55, +£200.32]**. The fulfilled-unit rate falls
+**11.45 percentage points**, so the illustrative profit/service gate rejects promotion.
+This is an offline historical comparison, not a live randomized A/B result.
+See [method and guardrails](docs/POLICY_COMPARISON.md) and the
+[executed evidence](examples/policy-comparison.json).
+
 ```bash
 python -m stocklab run --product 85123A
 python -m stocklab backtest

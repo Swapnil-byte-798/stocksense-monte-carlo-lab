@@ -32,6 +32,14 @@ def main():
     sub.add_parser("data", help="show real-data provenance and audit")
     bt = sub.add_parser("backtest")
     bt.add_argument("--output", type=Path, default=Path("output/retail-backtest.json"))
+    compare = sub.add_parser(
+        "compare-policies", help="paired historical policy intervals on real sales"
+    )
+    compare.add_argument(
+        "--output", type=Path, default=Path("output/policy-comparison.json")
+    )
+    compare.add_argument("--replicates", type=int, default=20000)
+    compare.add_argument("--seed", type=int, default=2026)
     cal = sub.add_parser("calibrate", help="positive-only synthetic teaching CSV fit")
     cal.add_argument("csv", type=Path)
     args = parser.parse_args()
@@ -89,6 +97,21 @@ def main():
                 json.dumps(backtest_all(), indent=2, allow_nan=False) + "\n"
             )
             print(f"Saved replay to {args.output}")
+        elif args.command == "compare-policies":
+            from .comparison import compare_policies
+            from .retail import backtest_all
+
+            result = compare_policies(
+                backtest_all(), replicates=args.replicates, seed=args.seed
+            )
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
+            print(
+                json.dumps(
+                    {"output": str(args.output), "gate": result["illustrative_gate"]},
+                    indent=2,
+                )
+            )
         else:
             print(json.dumps(calibrate(args.csv), indent=2))
     except (ValueError, TypeError, OSError) as exc:

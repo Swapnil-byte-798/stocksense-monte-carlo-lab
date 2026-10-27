@@ -21,6 +21,7 @@ jobs:
       - run: python scripts/validate_powerbi.py
       - run: python -m stocklab run --n 1024 --replicates 4
       - run: python -m stocklab backtest
+      - run: python -m stocklab compare-policies --replicates 2000
       - run: python -m stocklab calibrate examples/synthetic-demand.csv
       - uses: actions/upload-artifact@v4
         with:

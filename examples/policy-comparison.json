@@ -1,0 +1,311 @@
+{
+  "comparison_type": "paired historical replay, not randomized A/B",
+  "candidate": "empirical_risk",
+  "baseline": "trailing_mean",
+  "weeks": 39,
+  "products": [
+    "85123A",
+    "84077",
+    "21212",
+    "85099B",
+    "84879"
+  ],
+  "first_week": "2011-03-07",
+  "last_week": "2011-11-28",
+  "bootstrap": {
+    "method": "circular moving blocks",
+    "replicates": 20000,
+    "seed": 2026,
+    "primary_block_length_weeks": 4,
+    "sensitivity_block_lengths": [
+      2,
+      8
+    ]
+  },
+  "illustrative_gate": {
+    "profit_lower_bound_above_zero": true,
+    "maximum_fill_rate_drop": 0.02,
+    "passes_both": false,
+    "decision": "do not promote on this evidence",
+    "note": "Retrospective gate defined after prior project results; not a preregistered decision."
+  },
+  "results": [
+    {
+      "scope": "portfolio",
+      "block_length_weeks": 2,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 94.17835897435897,
+      "profit_proxy_ci95_gbp": [
+        -7.337816346153875,
+        196.4347339743587
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.11450189683720735,
+      "fill_delta_ci95": [
+        -0.12758883706623192,
+        -0.09967710136318847
+      ]
+    },
+    {
+      "scope": "85123A",
+      "block_length_weeks": 2,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 85.93955128205124,
+      "profit_proxy_ci95_gbp": [
+        10.233568910256299,
+        162.64380608974355
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.10798626907647131,
+      "fill_delta_ci95": [
+        -0.13810811876383708,
+        -0.07448839242446023
+      ]
+    },
+    {
+      "scope": "84077",
+      "block_length_weeks": 2,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 0.24769230769231398,
+      "profit_proxy_ci95_gbp": [
+        -11.83107692307692,
+        12.714840384615384
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.19689715126387589,
+      "fill_delta_ci95": [
+        -0.24318000814775084,
+        -0.1562695155984835
+      ]
+    },
+    {
+      "scope": "21212",
+      "block_length_weeks": 2,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 25.082115384615385,
+      "profit_proxy_ci95_gbp": [
+        14.530488782051279,
+        34.97367147435897
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.07294378288562725,
+      "fill_delta_ci95": [
+        -0.09656552693092187,
+        -0.04360457583019655
+      ]
+    },
+    {
+      "scope": "85099B",
+      "block_length_weeks": 2,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": -25.027499999999996,
+      "profit_proxy_ci95_gbp": [
+        -61.355312500000004,
+        12.982687499999972
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.0713690872751499,
+      "fill_delta_ci95": [
+        -0.08620122188901598,
+        -0.05590357563553627
+      ]
+    },
+    {
+      "scope": "84879",
+      "block_length_weeks": 2,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 7.936500000000019,
+      "profit_proxy_ci95_gbp": [
+        -33.88292916666665,
+        49.16648749999997
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.09199708985085486,
+      "fill_delta_ci95": [
+        -0.11929053993635147,
+        -0.06473845530581723
+      ]
+    },
+    {
+      "scope": "portfolio",
+      "block_length_weeks": 4,
+      "primary": true,
+      "mean_weekly_profit_proxy_delta_gbp": 94.17835897435897,
+      "profit_proxy_ci95_gbp": [
+        -20.554241025641044,
+        200.3199916666664
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.11450189683720735,
+      "fill_delta_ci95": [
+        -0.12686673638522925,
+        -0.10004440405346969
+      ]
+    },
+    {
+      "scope": "85123A",
+      "block_length_weeks": 4,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 85.93955128205124,
+      "profit_proxy_ci95_gbp": [
+        5.5877916666666225,
+        160.9341298076923
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.10798626907647131,
+      "fill_delta_ci95": [
+        -0.13774683092450069,
+        -0.07420423149298248
+      ]
+    },
+    {
+      "scope": "84077",
+      "block_length_weeks": 4,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 0.24769230769231398,
+      "profit_proxy_ci95_gbp": [
+        -13.690303846153844,
+        14.31612403846154
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.19689715126387589,
+      "fill_delta_ci95": [
+        -0.23937599958551448,
+        -0.15988417057827956
+      ]
+    },
+    {
+      "scope": "21212",
+      "block_length_weeks": 4,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 25.082115384615385,
+      "profit_proxy_ci95_gbp": [
+        16.53523878205128,
+        34.198947115384605
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.07294378288562725,
+      "fill_delta_ci95": [
+        -0.09238541821478767,
+        -0.04797983171707719
+      ]
+    },
+    {
+      "scope": "85099B",
+      "block_length_weeks": 4,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": -25.027499999999996,
+      "profit_proxy_ci95_gbp": [
+        -57.900375,
+        11.52781249999995
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.0713690872751499,
+      "fill_delta_ci95": [
+        -0.08678471607948261,
+        -0.05621842153335314
+      ]
+    },
+    {
+      "scope": "84879",
+      "block_length_weeks": 4,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 7.936500000000019,
+      "profit_proxy_ci95_gbp": [
+        -37.81938333333333,
+        50.89500000000001
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.09199708985085486,
+      "fill_delta_ci95": [
+        -0.1209209630675083,
+        -0.06184089783531075
+      ]
+    },
+    {
+      "scope": "portfolio",
+      "block_length_weeks": 8,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 94.17835897435897,
+      "profit_proxy_ci95_gbp": [
+        -22.060387179487204,
+        198.46956089743557
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.11450189683720735,
+      "fill_delta_ci95": [
+        -0.12504360696211586,
+        -0.10167694912479025
+      ]
+    },
+    {
+      "scope": "85123A",
+      "block_length_weeks": 8,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 85.93955128205124,
+      "profit_proxy_ci95_gbp": [
+        26.46670032051275,
+        141.17726121794863
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.10798626907647131,
+      "fill_delta_ci95": [
+        -0.13385303648082703,
+        -0.07992031386175559
+      ]
+    },
+    {
+      "scope": "84077",
+      "block_length_weeks": 8,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 0.24769230769231398,
+      "profit_proxy_ci95_gbp": [
+        -15.078504807692301,
+        15.488677884615386
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.19689715126387589,
+      "fill_delta_ci95": [
+        -0.22541871742009956,
+        -0.1747387580191448
+      ]
+    },
+    {
+      "scope": "21212",
+      "block_length_weeks": 8,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 25.082115384615385,
+      "profit_proxy_ci95_gbp": [
+        16.446110576923076,
+        34.19873557692307
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.07294378288562725,
+      "fill_delta_ci95": [
+        -0.09064782503776257,
+        -0.04915455299077211
+      ]
+    },
+    {
+      "scope": "85099B",
+      "block_length_weeks": 8,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": -25.027499999999996,
+      "profit_proxy_ci95_gbp": [
+        -48.69499999999999,
+        -0.9295000000000304
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.0713690872751499,
+      "fill_delta_ci95": [
+        -0.08570784983409371,
+        -0.06225710733295719
+      ]
+    },
+    {
+      "scope": "84879",
+      "block_length_weeks": 8,
+      "primary": false,
+      "mean_weekly_profit_proxy_delta_gbp": 7.936500000000019,
+      "profit_proxy_ci95_gbp": [
+        -43.15371666666664,
+        57.79382916666667
+      ],
+      "fulfilled_observed_unit_rate_delta": -0.09199708985085486,
+      "fill_delta_ci95": [
+        -0.1254694207035424,
+        -0.05293802745250619
+      ]
+    }
+  ],
+  "limitations": [
+    "Real observed sales; profit depends on assumed costs and weekly reset, not actual realized profit.",
+    "Resample the same weeks for both policies and every SKU; retain local serial and cross-product dependence.",
+    "39 historical weeks are short; trend/seasonality can violate approximate block stationarity.",
+    "Pointwise percentile intervals; product and block-length sensitivity rows are exploratory, not multiple confirmed wins.",
+    "No customer randomization, intervention, live A/B result, future-savings guarantee, or automatic operational change."
+  ]
+}
